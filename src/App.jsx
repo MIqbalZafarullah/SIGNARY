@@ -6,15 +6,17 @@ import Toast from './components/Toast';
 
 import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
+import DashboardPage from './pages/DashboardPage';
 import FeatureDictionaryPage from './pages/FeatureDictionaryPage';
 import FeatureDetectionPage from './pages/FeatureDetectionPage';
+import SignAcademyPage from './pages/SignAcademyPage';
 import CommunityForumPage from './pages/CommunityForumPage';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
-  const [activePage, setActivePage] = useState('home');
+  const [activePage, setActivePage] = useState('dashboard');
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [toast, setToast] = useState(null);
 
@@ -25,10 +27,10 @@ export default function App() {
   const handleLogoutConfirm = () => {
     setCurrentUser(null);
     setIsLogoutModalOpen(false);
-    showToast('Anda berhasil keluar.');
+    showToast('Anda berhasil keluar dari SIGNARY.');
   };
 
-  // If not logged in, force login screen
+  // If not logged in, render login / signup screen
   if (!currentUser) {
     return (
       <>
@@ -40,17 +42,53 @@ export default function App() {
     );
   }
 
-  // Helper render page
+  // Route renderer
   const renderPage = () => {
     switch (activePage) {
+      case 'beranda':
       case 'home':
-        return <HomePage currentUser={currentUser} onNavigate={setActivePage} />;
+        return (
+          <HomePage 
+            currentUser={currentUser} 
+            onNavigate={setActivePage} 
+          />
+        );
+      case 'dashboard':
+        return (
+          <DashboardPage 
+            currentUser={currentUser} 
+            onNavigate={setActivePage} 
+            showToast={showToast} 
+          />
+        );
       case 'kamus':
-        return <FeatureDictionaryPage onNavigate={setActivePage} showToast={showToast} />;
+        return (
+          <FeatureDictionaryPage 
+            onNavigate={setActivePage} 
+            showToast={showToast} 
+          />
+        );
       case 'penerjemah':
-        return <FeatureDetectionPage onNavigate={setActivePage} showToast={showToast} />;
+        return (
+          <FeatureDetectionPage 
+            onNavigate={setActivePage} 
+            showToast={showToast} 
+          />
+        );
+      case 'academy':
+        return (
+          <SignAcademyPage 
+            onNavigate={setActivePage} 
+            showToast={showToast} 
+          />
+        );
       case 'forum':
-        return <CommunityForumPage onNavigate={setActivePage} showToast={showToast} />;
+        return (
+          <CommunityForumPage 
+            onNavigate={setActivePage} 
+            showToast={showToast} 
+          />
+        );
       case 'profil':
         return (
           <ProfilePage 
@@ -69,14 +107,20 @@ export default function App() {
           />
         );
       default:
-        return <HomePage currentUser={currentUser} onNavigate={setActivePage} />;
+        return (
+          <DashboardPage 
+            currentUser={currentUser} 
+            onNavigate={setActivePage} 
+            showToast={showToast} 
+          />
+        );
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 flex flex-col relative overflow-hidden font-sans antialiased selection:bg-primary-500 selection:text-white">
       
-      {/* Background Ambient Mesh Light Spheres (Apple Liquid Light Effect) */}
+      {/* Background Ambient Mesh Light Spheres (Apple Specular Glass Effect) */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         {/* Soft Blue Orb top-right */}
         <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-gradient-to-br from-blue-400/20 via-sky-300/15 to-transparent blur-[100px] animate-mesh-1" />
@@ -91,10 +135,11 @@ export default function App() {
         activePage={activePage} 
         onNavigate={setActivePage} 
         onLogoutClick={() => setIsLogoutModalOpen(true)} 
+        currentUser={currentUser}
       />
 
       {/* Main Spacious Content Area with Liquid Glass Backdrop */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12 pb-28 md:pb-12 relative z-10">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10 pb-28 md:pb-12 relative z-10">
         {renderPage()}
       </main>
 
