@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   ArrowLeft, 
   Mic, 
@@ -17,6 +17,15 @@ import {
   MessageSquare,
   ShieldAlert
 } from 'lucide-react';
+import SignAnimator from '../components/sign/SignAnimator';
+
+// Gestur dasar yang bisa dipelajari & disimulasikan di Live Interpreter
+const GESTURE_PRESETS = [
+  { id: 'halo', label: '👋 Halo', name: 'Lambaian Tangan', text: 'Halo, Selamat Pagi', conf: '98.8%' },
+  { id: 'terimaKasih', label: '🙏 Terima Kasih', name: 'Sentuh Dagu ke Depan', text: 'Terima Kasih Banyak', conf: '99.1%' },
+  { id: 'saya', label: '☝️ Saya', name: 'Telunjuk ke Dada', text: 'Saya Teman Tuli', conf: '97.5%' },
+  { id: 'bagus', label: '👍 Bagus Sekali', name: 'Ibu Jari Tegak & Tersenyum', text: 'Bagus Sekali / Hebat', conf: '98.4%' },
+];
 
 export default function FeatureDetectionPage({ onNavigate, showToast }) {
   const [activeTab, setActiveTab] = useState('suara'); // suara, gerakan
@@ -32,6 +41,29 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
   const [voiceStatus, setVoiceStatus] = useState('Siap merekam suara');
   const [gestureStatus, setGestureStatus] = useState('Kamera tidak aktif');
   const [detectedConfidence, setDetectedConfidence] = useState(null);
+
+  // Panduan gerakan + kamera perangkat (bila diizinkan)
+  const [guideId, setGuideId] = useState('halo');
+  const [cameraStream, setCameraStream] = useState(null);
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
+  const guidePreset = GESTURE_PRESETS.find((g) => g.id === guideId) || GESTURE_PRESETS[0];
+
+  const stopStream = () => {
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    setCameraStream(null);
+  };
+
+  // Hubungkan stream ke elemen video
+  useEffect(() => {
+    if (videoRef.current && cameraStream) {
+      videoRef.current.srcObject = cameraStream;
+    }
+  }, [cameraStream, isCameraOn]);
+
+  // Matikan kamera saat pindah tab atau meninggalkan halaman
+  useEffect(() => () => streamRef.current?.getTracks().forEach((t) => t.stop()), []);
 
   // Multi-turn inclusive conversation log
   const [conversation, setConversation] = useState([
@@ -130,17 +162,34 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
   };
 
   // Turn camera on/off
-  const toggleCamera = () => {
+  const toggleCamera = async () => {
     if (isCameraOn) {
+      stopStream();
       setIsCameraOn(false);
       setGestureResult('');
       setDetectedConfidence(null);
       setGestureStatus('Kamera tidak aktif');
-    } else {
-      setIsCameraOn(true);
-      setGestureStatus('Kamera aktif. Tracking 21 Hand Landmarks siap.');
-      setGestureResult('Lakukan gerakan isyarat atau tekan tombol simulasi di bawah.');
+      return;
     }
+    setIsCameraOn(true);
+    setGestureResult('Tirukan panduan gerakan, lalu tekan tombol isyarat untuk simulasi deteksi.');
+    if (navigator.mediaDevices?.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+        streamRef.current = stream;
+        setCameraStream(stream);
+        setGestureStatus('Kamera perangkat aktif. Tirukan panduan di pojok layar.');
+        return;
+      } catch {
+        showToast('Akses kamera ditolak/tidak tersedia. Menampilkan mode simulasi.');
+      }
+    }
+    setGestureStatus('Kamera simulasi aktif. Tracking 21 Hand Landmarks siap.');
+  };
+
+  const handlePreset = (g) => {
+    setGuideId(g.id);
+    if (isCameraOn) triggerMockGesture(g.name, g.text, g.conf);
   };
 
   return (
@@ -364,7 +413,26 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
                       <div className="absolute bottom-6 left-6 w-6 h-6 border-b-2 border-l-2 border-white/50"></div>
                       <div className="absolute bottom-6 right-6 w-6 h-6 border-b-2 border-r-2 border-white/50"></div>
                       
+                      {cameraStream && (
+                        <video
+                          ref={videoRef}
+                          autoPlay
+                          playsInline
+                          muted
+                          className="absolute inset-0 w-full h-full object-cover -scale-x-100"
+                        />
+                      )}
+
+                      {/* Panduan gerakan (picture-in-picture) */}
+                      <div className="absolute top-14 right-4 w-28 sm:w-36 rounded-2xl bg-white/95 border border-white shadow-lg overflow-hidden z-10">
+                        <SignAnimator key={guideId} signId={guideId} variant="card" active defaultMirror />
+                        <div className="px-2 pb-1.5 text-[10px] font-bold text-slate-700 text-center truncate">
+                          Tirukan: {guidePreset.label}
+                        </div>
+                      </div>
+
                       {/* Simulated 21-landmarks hand skeleton */}
+                      {!cameraStream && (
                       <svg className="absolute inset-0 w-full h-full" viewBox="0 0 600 400">
                         {/* Palm lines */}
                         <path d="M 300,340 L 260,280 L 240,220 M 300,340 L 290,260 L 285,180 M 300,340 L 320,260 L 325,170 M 300,340 L 350,270 L 360,190 M 300,340 L 380,300 L 410,260" 
@@ -387,11 +455,12 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
                         <circle cx="380" cy="300" r="5" fill="#0284c7" stroke="#ffffff" strokeWidth="1.5" />
                         <circle cx="410" cy="260" r="6" fill="#38bdf8" stroke="#ffffff" strokeWidth="2" />
                       </svg>
+                      )}
 
                       {/* HUD Overlays */}
                       <div className="absolute top-6 left-6 flex items-center gap-2 bg-slate-950/70 px-3 py-1.5 rounded-full backdrop-blur-md text-[10px] text-white font-bold border border-slate-700/60">
                         <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping"></span>
-                        LIVE TRACKING 30 FPS
+                        {cameraStream ? 'KAMERA PERANGKAT' : 'LIVE TRACKING 30 FPS'}
                       </div>
 
                       <div className="absolute top-6 right-6 flex items-center gap-2 bg-slate-950/70 px-3 py-1.5 rounded-full backdrop-blur-md text-[10px] text-sky-400 font-bold border border-slate-700/60">
@@ -424,40 +493,38 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
                 )}
               </div>
 
-              {/* Presets simulator triggers */}
-              {isCameraOn && (
-                <div className="space-y-3">
-                  <span className="block text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Picu Isyarat Simulasi (Tekan untuk Demo Juri):
-                  </span>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {/* Pilihan isyarat: panduan + simulasi deteksi */}
+              <div className="space-y-3">
+                <span className="block text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  {isCameraOn ? 'Pilih Isyarat (tampilkan panduan & picu simulasi deteksi):' : 'Pelajari Gerakan Isyarat Dasar:'}
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {GESTURE_PRESETS.map((g) => (
                     <button
-                      onClick={() => triggerMockGesture('Lambaian Tangan', 'Halo, Selamat Pagi', '98.8%')}
-                      className="px-3 py-2.5 glass-pill hover:bg-primary-50 text-xs font-bold text-slate-700 hover:text-primary-600 transition-all active:scale-95 text-center"
+                      key={g.id}
+                      onClick={() => handlePreset(g)}
+                      className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95 text-center ${
+                        guideId === g.id
+                          ? 'bg-primary-600 text-white shadow-md shadow-primary-500/25'
+                          : 'glass-pill text-slate-700 hover:bg-primary-50 hover:text-primary-600'
+                      }`}
                     >
-                      👋 Halo
+                      {g.label}
                     </button>
-                    <button
-                      onClick={() => triggerMockGesture('Sentuh Dagu ke Depan', 'Terima Kasih Banyak', '99.1%')}
-                      className="px-3 py-2.5 glass-pill hover:bg-primary-50 text-xs font-bold text-slate-700 hover:text-primary-600 transition-all active:scale-95 text-center"
-                    >
-                      🙏 Terima Kasih
-                    </button>
-                    <button
-                      onClick={() => triggerMockGesture('Telunjuk ke Dada', 'Saya Teman Tuli', '97.5%')}
-                      className="px-3 py-2.5 glass-pill hover:bg-primary-50 text-xs font-bold text-slate-700 hover:text-primary-600 transition-all active:scale-95 text-center"
-                    >
-                      ☝️ Saya
-                    </button>
-                    <button
-                      onClick={() => triggerMockGesture('Ibu Jari Tegak & Tersenyum', 'Bagus Sekali / Hebat', '98.4%')}
-                      className="px-3 py-2.5 glass-pill hover:bg-primary-50 text-xs font-bold text-slate-700 hover:text-primary-600 transition-all active:scale-95 text-center"
-                    >
-                      👍 Bagus Sekali
-                    </button>
-                  </div>
+                  ))}
                 </div>
-              )}
+              </div>
+
+              {/* Panduan gerakan lengkap per tahap */}
+              <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-4 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <h4 className="text-sm font-bold text-slate-900">
+                    Panduan Gerakan: {guidePreset.label.replace(/^\S+\s/, '')}
+                  </h4>
+                  <span className="text-[10px] font-semibold text-slate-400">Mode cermin aktif agar mudah ditirukan</span>
+                </div>
+                <SignAnimator key={guideId} signId={guideId} variant="full" defaultMirror />
+              </div>
             </div>
           )}
         </div>

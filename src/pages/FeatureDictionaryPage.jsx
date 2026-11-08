@@ -13,105 +13,7 @@ import {
   HelpCircle,
   Eye
 } from 'lucide-react';
-
-function HandGestureVisual({ word }) {
-  switch (word) {
-    case 'Halo':
-      return (
-        <svg viewBox="0 0 200 160" className="w-full h-36 max-w-[200px] mx-auto">
-          <path d="M 135 40 Q 155 60 135 80" fill="none" stroke="#38bdf8" strokeWidth="3" strokeLinecap="round" strokeDasharray="3 3" />
-          <path d="M 145 30 Q 170 60 145 90" fill="none" stroke="#60a5fa" strokeWidth="3" strokeLinecap="round" strokeDasharray="3 3" />
-          <g transform="translate(60, 25)">
-            <path d="M 30 80 L 30 45 C 30 35 40 35 40 45 L 40 25 C 40 15 50 15 50 25 L 50 20 C 50 10 60 10 60 20 L 60 28 C 60 18 70 18 70 28 L 70 60 C 70 75 55 90 35 90 Z" 
-                  fill="#60a5fa" stroke="#ffffff" strokeWidth="2" />
-            <path d="M 30 65 C 20 60 15 50 20 40 C 25 35 30 45 30 55 Z" fill="#38bdf8" stroke="#ffffff" strokeWidth="2" />
-          </g>
-          <text x="100" y="148" textAnchor="middle" fill="#93c5fd" fontSize="10" fontWeight="bold">
-            Lambaian Telapak Tangan Sejajar Pelipis
-          </text>
-        </svg>
-      );
-    case 'Terima Kasih':
-      return (
-        <svg viewBox="0 0 200 160" className="w-full h-36 max-w-[200px] mx-auto">
-          <path d="M 100 85 L 100 120" stroke="#38bdf8" strokeWidth="3" strokeDasharray="3 3" />
-          <polygon points="100,128 94,118 106,118" fill="#38bdf8" />
-          <circle cx="100" cy="40" r="16" fill="#bfdbfe" />
-          <path d="M 90 48 Q 100 55 110 48" stroke="#2563eb" strokeWidth="2" fill="none" />
-          <g transform="translate(65, 45)">
-            <path d="M 20 20 L 50 20 C 55 20 60 25 60 30 L 60 45 C 60 55 50 60 40 60 L 20 60 Z" fill="#60a5fa" stroke="#ffffff" strokeWidth="2" />
-            <line x1="25" y1="20" x2="25" y2="40" stroke="#ffffff" strokeWidth="1.5" />
-            <line x1="35" y1="20" x2="35" y2="40" stroke="#ffffff" strokeWidth="1.5" />
-            <line x1="45" y1="20" x2="45" y2="40" stroke="#ffffff" strokeWidth="1.5" />
-          </g>
-          <text x="100" y="148" textAnchor="middle" fill="#93c5fd" fontSize="10" fontWeight="bold">
-            Sentuh Bibir Bawah lalu Maju ke Depan
-          </text>
-        </svg>
-      );
-    case 'Keluarga':
-      return (
-        <svg viewBox="0 0 200 160" className="w-full h-36 max-w-[200px] mx-auto">
-          <circle cx="75" cy="55" r="16" fill="#93c5fd" />
-          <circle cx="125" cy="55" r="16" fill="#60a5fa" />
-          <circle cx="100" cy="85" r="14" fill="#38bdf8" />
-          <path d="M 50 115 Q 100 80 150 115" stroke="#2563eb" strokeWidth="3" fill="none" strokeDasharray="4 4" />
-          <text x="100" y="148" textAnchor="middle" fill="#93c5fd" fontSize="10" fontWeight="bold">
-            Kedua Tangan Membentuk Lingkaran Bersatu
-          </text>
-        </svg>
-      );
-    case 'Belajar':
-      return (
-        <svg viewBox="0 0 200 160" className="w-full h-36 max-w-[200px] mx-auto">
-          <path d="M 40 100 Q 100 70 160 100" fill="none" stroke="#2563eb" strokeWidth="3" />
-          <polygon points="50,95 100,75 150,95 100,115" fill="#bfdbfe" stroke="#3b82f6" strokeWidth="1.5" />
-          <path d="M 100 75 L 100 40" stroke="#38bdf8" strokeWidth="3" strokeDasharray="3 3" />
-          <polygon points="100,32 94,44 106,44" fill="#38bdf8" />
-          <text x="100" y="148" textAnchor="middle" fill="#93c5fd" fontSize="10" fontWeight="bold">
-            Mengambil Ilmu dari Telapak ke Kening
-          </text>
-        </svg>
-      );
-    case 'Darurat':
-      return (
-        <svg viewBox="0 0 200 160" className="w-full h-36 max-w-[200px] mx-auto">
-          <circle cx="100" cy="70" r="50" fill="#ef4444" fillOpacity="0.1" className="animate-ping" />
-          <g stroke="#f87171" strokeWidth="10" strokeLinecap="round">
-            <line x1="60" y1="105" x2="140" y2="35" />
-            <line x1="140" y1="105" x2="60" y2="35" />
-          </g>
-          <circle cx="140" cy="35" r="12" fill="#ef4444" stroke="#ffffff" strokeWidth="2" />
-          <circle cx="60" cy="35" r="12" fill="#ef4444" stroke="#ffffff" strokeWidth="2" />
-          <text x="100" y="148" textAnchor="middle" fill="#fca5a5" fontSize="10" fontWeight="bold">
-            Silang Pergelangan Tangan (Huruf X)
-          </text>
-        </svg>
-      );
-    case 'Teknologi':
-      return (
-        <svg viewBox="0 0 200 160" className="w-full h-36 max-w-[200px] mx-auto">
-          <rect x="55" y="40" width="90" height="60" rx="10" fill="#bfdbfe" stroke="#2563eb" strokeWidth="2" />
-          <line x1="75" y1="70" x2="125" y2="70" stroke="#2563eb" strokeWidth="3" strokeDasharray="3 3" />
-          <circle cx="100" cy="70" r="8" fill="#3b82f6" />
-          <text x="100" y="148" textAnchor="middle" fill="#93c5fd" fontSize="10" fontWeight="bold">
-            Gerakan Jari Mengetik Interaktif
-          </text>
-        </svg>
-      );
-    default:
-      return (
-        <svg viewBox="0 0 200 160" className="w-full h-36 max-w-[200px] mx-auto">
-          <rect x="50" y="35" width="100" height="80" rx="16" fill="#f1f5f9" stroke="#cbd5e1" strokeWidth="2" />
-          <circle cx="100" cy="75" r="22" fill="#e2e8f0" />
-          <path d="M 85 75 Q 100 60 115 75" stroke="#94a3b8" strokeWidth="2" fill="none" />
-          <text x="100" y="148" textAnchor="middle" fill="#94a3b8" fontSize="10" fontWeight="bold">
-            Gestur Terstandarisasi SIGNARY
-          </text>
-        </svg>
-      );
-  }
-}
+import SignAnimator from '../components/sign/SignAnimator';
 
 export default function FeatureDictionaryPage({ onNavigate, showToast }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -119,6 +21,7 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
   const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [selectedWordDetail, setSelectedWordDetail] = useState(null);
   const [bookmarkedIds, setBookmarkedIds] = useState([1, 2, 8]);
+  const [hoveredId, setHoveredId] = useState(null);
 
   // Lock background scroll when modal is open to prevent page scrolling behind it
   useEffect(() => {
@@ -163,6 +66,7 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
   const vocabularies = [
     {
       id: 1,
+      sign: 'halo',
       word: 'Halo',
       dialect: 'BISINDO',
       category: 'Sapaan',
@@ -172,6 +76,7 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
     },
     {
       id: 2,
+      sign: 'terimaKasih',
       word: 'Terima Kasih',
       dialect: 'BISINDO',
       category: 'Sapaan',
@@ -181,6 +86,7 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
     },
     {
       id: 3,
+      sign: 'keluarga',
       word: 'Keluarga',
       dialect: 'SIBI',
       category: 'Keluarga',
@@ -190,6 +96,7 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
     },
     {
       id: 4,
+      sign: 'belajar',
       word: 'Belajar',
       dialect: 'BISINDO',
       category: 'Pendidikan',
@@ -199,6 +106,7 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
     },
     {
       id: 5,
+      sign: 'makan',
       word: 'Makan',
       dialect: 'BISINDO',
       category: 'Aktivitas Sehari-hari',
@@ -208,6 +116,7 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
     },
     {
       id: 6,
+      sign: 'sepuluh',
       word: 'Sepuluh (10)',
       dialect: 'SIBI',
       category: 'Angka',
@@ -217,6 +126,7 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
     },
     {
       id: 7,
+      sign: 'rumahSakit',
       word: 'Rumah Sakit',
       dialect: 'BISINDO',
       category: 'Tempat',
@@ -226,6 +136,7 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
     },
     {
       id: 8,
+      sign: 'senang',
       word: 'Senang / Bahagia',
       dialect: 'BISINDO',
       category: 'Perasaan',
@@ -235,6 +146,7 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
     },
     {
       id: 9,
+      sign: 'darurat',
       word: 'Darurat',
       dialect: 'SIBI',
       category: 'Kesehatan',
@@ -244,6 +156,7 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
     },
     {
       id: 10,
+      sign: 'ai',
       word: 'Kecerdasan Buatan (AI)',
       dialect: 'BISINDO',
       category: 'Teknologi',
@@ -253,6 +166,7 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
     },
     {
       id: 11,
+      sign: 'sekolah',
       word: 'Sekolah',
       dialect: 'SIBI',
       category: 'Pendidikan',
@@ -262,6 +176,7 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
     },
     {
       id: 12,
+      sign: 'komputer',
       word: 'Komputer / Laptop',
       dialect: 'BISINDO',
       category: 'Teknologi',
@@ -399,6 +314,8 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
             return (
               <div 
                 key={item.id}
+                onMouseEnter={() => setHoveredId(item.id)}
+                onMouseLeave={() => setHoveredId(null)}
                 className="liquid-glass rounded-3xl p-5 border border-white/80 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between"
               >
                 <div>
@@ -439,8 +356,8 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
                   </p>
 
                   {/* SVG Gesture Visual Box */}
-                  <div className="bg-slate-50/90 rounded-2xl p-2 border border-slate-200/60 mb-3 flex items-center justify-center overflow-hidden">
-                    <HandGestureVisual word={item.word} />
+                  <div className="bg-gradient-to-b from-sky-50 to-white rounded-2xl border border-slate-200/60 mb-3 overflow-hidden">
+                    <SignAnimator signId={item.sign} variant="card" active={hoveredId === item.id} />
                   </div>
 
                   {/* Instruction description snippet */}
@@ -488,7 +405,7 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
             if (e.target === e.currentTarget) setSelectedWordDetail(null);
           }}
         >
-          <div className="liquid-glass w-full max-w-lg max-h-[85vh] rounded-[32px] border border-white/90 shadow-2xl bg-white/95 flex flex-col relative overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="liquid-glass w-full max-w-2xl max-h-[90vh] rounded-[32px] border border-white/90 shadow-2xl bg-white/95 flex flex-col relative overflow-hidden animate-in zoom-in-95 duration-200">
             
             {/* Modal Header (Fixed / Pinned Top) */}
             <div className="p-6 pb-4 border-b border-slate-100 flex items-start justify-between shrink-0 bg-white/95 backdrop-blur-md z-10">
@@ -520,9 +437,7 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
             {/* Modal Body (Smoothly Scrollable) */}
             <div className="p-6 pt-4 space-y-4 overflow-y-auto overscroll-contain flex-1">
               {/* Visual Big Preview */}
-              <div className="bg-slate-50/80 rounded-2xl p-4 border border-slate-200/70 flex flex-col items-center justify-center shadow-inner">
-                <HandGestureVisual word={selectedWordDetail.word} />
-              </div>
+              <SignAnimator key={selectedWordDetail.id} signId={selectedWordDetail.sign} variant="full" />
 
               {/* Content info */}
               <div className="space-y-3 text-xs sm:text-sm">
@@ -532,7 +447,7 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
                 </div>
 
                 <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/60">
-                  <span className="block font-bold text-slate-900 mb-1">Panduan Langkah Gerakan:</span>
+                  <span className="block font-bold text-slate-900 mb-1">Ringkasan Gerakan:</span>
                   <p className="text-slate-600 font-medium leading-relaxed">
                     {selectedWordDetail.description}
                   </p>
