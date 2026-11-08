@@ -94,6 +94,7 @@ export default function SignAnimator({
   autoPlay = true,
   defaultMirror = false,
   className = '',
+  onLoopEnd,
 }) {
   const sign = signProp || SIGNS[signId];
   const tl = useMemo(() => (sign ? buildTimeline(sign) : null), [sign]);
@@ -108,6 +109,10 @@ export default function SignAnimator({
   const [t, setT] = useState(() => (tl ? tl.steps[0].holdStart : 0));
   const speedRef = useRef(speed);
   speedRef.current = speed;
+  const onLoopEndRef = useRef(onLoopEnd);
+  onLoopEndRef.current = onLoopEnd;
+  const tRef = useRef(t);
+  tRef.current = t;
 
   const playing = !!tl && (selfPlaying || (isCard && active)) && !(reduced && isCard && !selfPlaying);
 
@@ -133,7 +138,16 @@ export default function SignAnimator({
     const tick = (now) => {
       const dt = Math.min(64, now - last);
       last = now;
-      setT((prev) => (prev + dt * speedRef.current) % tl.total);
+      const next = tRef.current + dt * speedRef.current;
+      if (next >= tl.total && onLoopEndRef.current) {
+        // Satu putaran selesai: biarkan induk memutuskan (mis. lanjut ke isyarat berikutnya)
+        tRef.current = tl.steps[0].holdStart;
+        setT(tRef.current);
+        onLoopEndRef.current();
+      } else {
+        tRef.current = next % tl.total;
+        setT(tRef.current);
+      }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
