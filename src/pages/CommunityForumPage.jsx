@@ -262,7 +262,7 @@ export default function CommunityForumPage({ onNavigate, showToast }) {
               <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">
                 Inclusive Community & Co-Creator Hub
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200/60">
+              <span className="px-2.5 py-0.5 rounded-full text-[0.6875rem] font-bold bg-purple-50 text-purple-700 border border-purple-200/60">
                 Kolaborasi Tuli-Dengar
               </span>
             </div>
@@ -367,13 +367,13 @@ export default function CommunityForumPage({ onNavigate, showToast }) {
                       </div>
                       <div>
                         <span className="block text-sm font-bold text-slate-900">{post.author}</span>
-                        <span className="block text-[11px] font-semibold text-slate-400">{post.role}</span>
+                        <span className="block text-[0.6875rem] font-semibold text-slate-400">{post.role}</span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="text-[11px] text-slate-400 font-medium">{post.time}</span>
-                      <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold uppercase tracking-wider">
+                      <span className="text-[0.6875rem] text-slate-400 font-medium">{post.time}</span>
+                      <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-[0.625rem] font-bold uppercase tracking-wider">
                         {post.category}
                       </span>
                     </div>
@@ -390,8 +390,8 @@ export default function CommunityForumPage({ onNavigate, showToast }) {
                   </div>
 
                   {/* Action Bar */}
-                  <div className="flex items-center justify-between pt-4 border-t border-slate-200/60 text-slate-500 text-xs font-semibold">
-                    <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-between gap-2 pt-4 border-t border-slate-200/60 text-slate-500 text-xs font-semibold">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 min-w-0">
                       <button 
                         onClick={() => handleLike(post.id)}
                         className="flex items-center gap-1.5 hover:text-primary-600 transition-all active:scale-95 py-1 px-2.5 rounded-xl hover:bg-slate-100/60"
@@ -494,7 +494,7 @@ export default function CommunityForumPage({ onNavigate, showToast }) {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                    <span className="text-[0.625rem] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
                       {prop.dialect} • {prop.category}
                     </span>
                     <h3 className="text-lg font-bold text-slate-900 mt-1.5">
@@ -502,7 +502,7 @@ export default function CommunityForumPage({ onNavigate, showToast }) {
                     </h3>
                   </div>
 
-                  <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1 ${
+                  <span className={`px-2.5 py-1 rounded-full text-[0.6875rem] font-bold flex items-center gap-1 ${
                     prop.status === 'Masuk Kamus SIGNARY'
                       ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                       : prop.status === 'Terverifikasi Ahli Tuli'
@@ -515,7 +515,7 @@ export default function CommunityForumPage({ onNavigate, showToast }) {
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-white/70 border border-slate-100 text-xs space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Deskripsi Gestur Tangan:</span>
+                  <span className="text-[0.625rem] font-bold text-slate-400 uppercase">Deskripsi Gestur Tangan:</span>
                   <p className="text-slate-700 font-medium leading-relaxed">
                     {prop.gestureDesc}
                   </p>
@@ -637,7 +637,7 @@ export default function CommunityForumPage({ onNavigate, showToast }) {
             {/* Modal Header (Fixed / Pinned Top) */}
             <div className="p-6 pb-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white/95 backdrop-blur-md z-10">
               <div>
-                <span className="text-[10px] font-extrabold uppercase text-primary-600 tracking-wider">Co-Creator Hub</span>
+                <span className="text-[0.625rem] font-extrabold uppercase text-primary-600 tracking-wider">Co-Creator Hub</span>
                 <h3 className="text-lg font-bold text-slate-900 mt-0.5">
                   Usulkan Kosakata Isyarat Baru
                 </h3>
@@ -706,7 +706,7 @@ export default function CommunityForumPage({ onNavigate, showToast }) {
                   />
                 </div>
 
-                <div className="p-3 rounded-2xl bg-amber-50/70 border border-amber-200/60 text-[11px] text-amber-800 leading-relaxed font-medium">
+                <div className="p-3 rounded-2xl bg-amber-50/70 border border-amber-200/60 text-[0.6875rem] text-amber-800 leading-relaxed font-medium">
                   💡 Usulan Anda akan diverifikasi oleh aktivis & penutur Tuli bersertifikasi sebelum resmi diintegrasikan ke kamus digital SIGNARY.
                 </div>
               </div>

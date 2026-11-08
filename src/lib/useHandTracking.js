@@ -40,11 +40,11 @@ function loadLandmarker() {
 
 const HAND_COLORS = { Left: '#22d3ee', Right: '#f97316' };
 
-function draw(ctx, result, connections, w, h) {
+function draw(ctx, result, connections, w, h, colorOverride) {
   ctx.clearRect(0, 0, w, h);
   result.landmarks.forEach((points, i) => {
     const label = result.handedness?.[i]?.[0]?.categoryName;
-    const color = HAND_COLORS[label] || '#38bdf8';
+    const color = colorOverride || HAND_COLORS[label] || '#38bdf8';
     ctx.lineWidth = Math.max(2, w / 220);
     ctx.lineCap = 'round';
     ctx.strokeStyle = color;
@@ -72,8 +72,13 @@ function draw(ctx, result, connections, w, h) {
  * Tracking 21 titik sendi tangan secara langsung dari elemen <video>.
  * Semua pemrosesan gambar berjalan di perangkat pengguna.
  */
-export default function useHandTracking(videoRef, canvasRef, enabled) {
+export default function useHandTracking(videoRef, canvasRef, enabled, { onResult, color } = {}) {
   const [status, setStatus] = useState('idle'); // idle | loading | ready | error
+  // Callback & warna disimpan di ref agar loop tidak perlu dibuat ulang
+  const onResultRef = useRef(onResult);
+  onResultRef.current = onResult;
+  const colorRef = useRef(color);
+  colorRef.current = color;
   const [handCount, setHandCount] = useState(0);
   const [fps, setFps] = useState(0);
   const lastCount = useRef(0);
@@ -109,7 +114,8 @@ export default function useHandTracking(videoRef, canvasRef, enabled) {
             if (video.currentTime !== lastVideoTime) {
               lastVideoTime = video.currentTime;
               const result = landmarker.detectForVideo(video, performance.now());
-              draw(canvas.getContext('2d'), result, connections, canvas.width, canvas.height);
+              draw(canvas.getContext('2d'), result, connections, canvas.width, canvas.height, colorRef.current);
+              onResultRef.current?.(result);
               const count = result.landmarks.length;
               if (count !== lastCount.current) {
                 lastCount.current = count;

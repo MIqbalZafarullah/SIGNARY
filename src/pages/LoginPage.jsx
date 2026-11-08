@@ -213,21 +213,21 @@ export default function LoginPage({ onLoginSuccess }) {
 
             {/* Quick Demo Fill Buttons */}
             <div className="pt-4 border-t border-slate-200/60 text-center">
-              <span className="text-[11px] font-semibold text-slate-400 block mb-2">
+              <span className="text-[0.6875rem] font-semibold text-slate-400 block mb-2">
                 Shortcut Demo Juri & Penguji:
               </span>
               <div className="flex items-center justify-center gap-2">
                 <button
                   type="button"
                   onClick={() => handleQuickDemo('rian')}
-                  className="px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-[11px] font-bold border border-blue-200 transition-colors"
+                  className="px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-[0.6875rem] font-bold border border-blue-200 transition-colors"
                 >
                   Akun Pelajar (Rian)
                 </button>
                 <button
                   type="button"
                   onClick={() => handleQuickDemo('bambang')}
-                  className="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[11px] font-bold border border-emerald-200 transition-colors"
+                  className="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[0.6875rem] font-bold border border-emerald-200 transition-colors"
                 >
                   Akun Validator (Kawan Tuli)
                 </button>
@@ -335,7 +335,7 @@ export default function LoginPage({ onLoginSuccess }) {
         )}
 
         {/* Prototype Transparency Notice */}
-        <div className="mt-6 text-center text-[10px] text-slate-400 flex items-center justify-center gap-1.5">
+        <div className="mt-6 text-center text-[0.625rem] text-slate-400 flex items-center justify-center gap-1.5">
           <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
           <span>SIGNARY Prototype Mode • Simulasi Autentikasi Interaktif</span>
         </div>

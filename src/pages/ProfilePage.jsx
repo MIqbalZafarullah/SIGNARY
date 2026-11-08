@@ -17,6 +17,7 @@ import {
   CheckCircle2,
   Share2
 } from 'lucide-react';
+import { formatXp, levelProgress, XP_PER_LEVEL } from '../lib/progress';
 
 export default function ProfilePage({ currentUser, setCurrentUser, onNavigate, showToast }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -65,7 +66,7 @@ export default function ProfilePage({ currentUser, setCurrentUser, onNavigate, s
             <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">
               Profil Pengguna & Prestasi
             </h2>
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-primary-50 text-primary-700 border border-primary-100">
+            <span className="px-2.5 py-0.5 rounded-full text-[0.6875rem] font-bold bg-primary-50 text-primary-700 border border-primary-100">
               Level 4
             </span>
           </div>
@@ -126,15 +127,15 @@ export default function ProfilePage({ currentUser, setCurrentUser, onNavigate, s
                 {/* Personal Details List */}
                 <div className="border-t border-slate-200/60 pt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="p-3.5 rounded-2xl bg-white/60 border border-slate-100 space-y-1">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase">Email Terdaftar</span>
+                    <span className="text-[0.625rem] font-bold text-slate-400 uppercase">Email Terdaftar</span>
                     <p className="text-xs font-bold text-slate-800 truncate">{currentUser.email || email}</p>
                   </div>
                   <div className="p-3.5 rounded-2xl bg-white/60 border border-slate-100 space-y-1">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase">Peran Komunitas</span>
+                    <span className="text-[0.625rem] font-bold text-slate-400 uppercase">Peran Komunitas</span>
                     <p className="text-xs font-bold text-primary-700">Dengar (Belajar Isyarat)</p>
                   </div>
                   <div className="p-3.5 rounded-2xl bg-white/60 border border-slate-100 space-y-1">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase">Status Akun</span>
+                    <span className="text-[0.625rem] font-bold text-slate-400 uppercase">Status Akun</span>
                     <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600">
                       <CheckCircle2 className="w-3.5 h-3.5" /> Terverifikasi
                     </span>
@@ -236,9 +237,9 @@ export default function ProfilePage({ currentUser, setCurrentUser, onNavigate, s
                   <div className="text-3xl">{b.icon}</div>
                   <div>
                     <h5 className="text-xs font-bold text-slate-900 leading-tight">{b.name}</h5>
-                    <p className="text-[10px] text-slate-400 mt-1 leading-snug">{b.desc}</p>
+                    <p className="text-[0.625rem] text-slate-400 mt-1 leading-snug">{b.desc}</p>
                   </div>
-                  <span className="inline-block text-[9px] font-bold text-primary-600 bg-primary-50 px-2 py-0.5 rounded-full">
+                  <span className="inline-block text-[0.5625rem] font-bold text-primary-600 bg-primary-50 px-2 py-0.5 rounded-full">
                     {b.date}
                   </span>
                 </div>
@@ -264,18 +265,18 @@ export default function ProfilePage({ currentUser, setCurrentUser, onNavigate, s
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-xs text-blue-100 font-semibold uppercase tracking-wider">Status Belajar</span>
-                  <h5 className="text-xl font-extrabold">Level 4: Penutur Mandiri</h5>
+                  <h5 className="text-xl font-extrabold">Level {currentUser.level || 1}</h5>
                 </div>
                 <Trophy className="w-8 h-8 text-amber-300" />
               </div>
 
               <div className="space-y-1">
                 <div className="flex justify-between text-xs font-medium text-blue-100">
-                  <span>1,450 XP</span>
-                  <span>2,000 XP Menuju Level 5</span>
+                  <span>{formatXp(currentUser.xp)}</span>
+                  <span>{formatXp((currentUser.level || 1) * XP_PER_LEVEL)} menuju Level {(currentUser.level || 1) + 1}</span>
                 </div>
                 <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
-                  <div className="h-full bg-amber-400 rounded-full" style={{ width: '72%' }}></div>
+                  <div className="h-full bg-amber-400 rounded-full" style={{ width: `${levelProgress(currentUser.xp)}%` }}></div>
                 </div>
               </div>
             </div>
@@ -289,7 +290,7 @@ export default function ProfilePage({ currentUser, setCurrentUser, onNavigate, s
                   </div>
                   <div>
                     <span className="block text-xs font-bold text-slate-800">Smart Dictionary</span>
-                    <span className="text-[10px] text-slate-400">Kosakata dipelajari</span>
+                    <span className="text-[0.625rem] text-slate-400">Kosakata dipelajari</span>
                   </div>
                 </div>
                 <span className="text-sm font-extrabold text-slate-900">84 Kata</span>
@@ -302,7 +303,7 @@ export default function ProfilePage({ currentUser, setCurrentUser, onNavigate, s
                   </div>
                   <div>
                     <span className="block text-xs font-bold text-slate-800">Live Interpreter</span>
-                    <span className="text-[10px] text-slate-400">Sesi terjemahan</span>
+                    <span className="text-[0.625rem] text-slate-400">Sesi terjemahan</span>
                   </div>
                 </div>
                 <span className="text-sm font-extrabold text-slate-900">24 Sesi</span>
@@ -315,7 +316,7 @@ export default function ProfilePage({ currentUser, setCurrentUser, onNavigate, s
                   </div>
                   <div>
                     <span className="block text-xs font-bold text-slate-800">Sign Academy</span>
-                    <span className="text-[10px] text-slate-400">Modul diselesaikan</span>
+                    <span className="text-[0.625rem] text-slate-400">Modul diselesaikan</span>
                   </div>
                 </div>
                 <span className="text-sm font-extrabold text-slate-900">3 dari 8</span>
@@ -328,7 +329,7 @@ export default function ProfilePage({ currentUser, setCurrentUser, onNavigate, s
                   </div>
                   <div>
                     <span className="block text-xs font-bold text-slate-800">Inclusive Community</span>
-                    <span className="text-[10px] text-slate-400">Post & usulan kosakata</span>
+                    <span className="text-[0.625rem] text-slate-400">Post & usulan kosakata</span>
                   </div>
                 </div>
                 <span className="text-sm font-extrabold text-slate-900">3 Kontribusi</span>

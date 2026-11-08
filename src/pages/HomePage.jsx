@@ -133,14 +133,14 @@ export default function HomePage({ currentUser, onNavigate }) {
                   <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${stat.color} shrink-0`}>
                     <Icon className="w-5 h-5" />
                   </div>
-                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
+                  <span className="text-[0.625rem] font-extrabold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
                     Aktif
                   </span>
                 </div>
                 <div>
                   <span className="block text-2xl md:text-3xl font-black text-slate-900 tracking-tight">{stat.value}</span>
                   <span className="block text-xs font-bold text-slate-600 mt-1">{stat.label}</span>
-                  <span className="block text-[11px] text-slate-400 mt-0.5">{stat.desc}</span>
+                  <span className="block text-[0.6875rem] text-slate-400 mt-0.5">{stat.desc}</span>
                 </div>
               </div>
             );
@@ -176,7 +176,7 @@ export default function HomePage({ currentUser, onNavigate }) {
                 <div>
                   {/* Badge & Icon */}
                   <div className="flex items-center justify-between mb-5">
-                    <span className="text-[11px] font-extrabold tracking-wider text-slate-500 uppercase px-3 py-1 rounded-full bg-white/80 border border-slate-200/60 shadow-xs">
+                    <span className="text-[0.6875rem] font-extrabold tracking-wider text-slate-500 uppercase px-3 py-1 rounded-full bg-white/80 border border-slate-200/60 shadow-xs">
                       {feat.badge}
                     </span>
                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border ${feat.color} shadow-inner`}>

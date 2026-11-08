@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { usePersistentState } from './lib/storage';
+import { levelForXp } from './lib/progress';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import LogoutModal from './components/LogoutModal';
@@ -15,8 +17,9 @@ import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 
 export default function App() {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [activePage, setActivePage] = useState('dashboard');
+  // Sesi login & halaman terakhir tersimpan di browser (bertahan saat refresh)
+  const [currentUser, setCurrentUser] = usePersistentState('user', null);
+  const [activePage, setActivePage] = usePersistentState('page', 'dashboard');
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [toast, setToast] = useState(null);
 
@@ -24,8 +27,18 @@ export default function App() {
     setToast({ message });
   };
 
+  // Tambah XP dari kuis, game, dan latihan kamera
+  const addXp = (amount) => {
+    setCurrentUser((u) => {
+      if (!u) return u;
+      const xp = (u.xp || 0) + amount;
+      return { ...u, xp, level: levelForXp(xp) };
+    });
+  };
+
   const handleLogoutConfirm = () => {
     setCurrentUser(null);
+    setActivePage('dashboard');
     setIsLogoutModalOpen(false);
     showToast('Anda berhasil keluar dari SIGNARY.');
   };
@@ -78,6 +91,8 @@ export default function App() {
       case 'academy':
         return (
           <SignAcademyPage 
+            currentUser={currentUser}
+            addXp={addXp}
             onNavigate={setActivePage} 
             showToast={showToast} 
           />

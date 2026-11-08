@@ -21,11 +21,14 @@ import {
   Loader2,
 } from 'lucide-react';
 import SignAnimator from '../components/sign/SignAnimator';
+import RecognizerPanel from '../components/recognizer/RecognizerPanel';
 import useSpeechRecognition from '../lib/useSpeechRecognition';
 import useHandTracking from '../lib/useHandTracking';
 import { speak, ttsSupported } from '../lib/speak';
 import { textToSigns, SUPPORTED_WORDS } from '../lib/textToSign';
 import { SIGNS } from '../data/signLibrary';
+import { usePersistentState } from '../lib/storage';
+import { usePreferences } from '../lib/preferences';
 
 // Gestur dasar untuk panduan & mode demo terjemahan isyarat
 const GESTURE_PRESETS = [
@@ -46,14 +49,16 @@ const nowTime = () => new Date().toLocaleTimeString([], { hour: '2-digit', minut
 export default function FeatureDetectionPage({ onNavigate, showToast }) {
   const [activeTab, setActiveTab] = useState('suara');
   const [isCopied, setIsCopied] = useState(false);
-  const [conversation, setConversation] = useState([]);
-  const [autoSpeak, setAutoSpeak] = useState(true);
+  const { prefs } = usePreferences();
+  // Riwayat percakapan & preferensi bacakan tersimpan di browser
+  const [conversation, setConversation] = usePersistentState('conversation', []);
+  const [autoSpeak, setAutoSpeak] = usePersistentState('autoSpeak', true);
   const [draft, setDraft] = useState('');
   const canSpeak = ttsSupported();
 
   const addMessage = (sender, text, mode) => {
     setConversation((prev) => [
-      ...prev,
+      ...prev.slice(-99),
       {
         id: `${Date.now()}-${Math.random()}`,
         sender,
@@ -86,7 +91,7 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
   // =============================================================== SUARA
   const [voiceResult, setVoiceResult] = useState('');
   const speech = useSpeechRecognition({
-    lang: 'id-ID',
+    lang: prefs.speechLang,
     onFinal: (text) => {
       setVoiceResult(text);
       addMessage('hearing', text, 'Suara ➔ Teks');
@@ -114,12 +119,16 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [cameraStream, setCameraStream] = useState(null);
   const [gestureResult, setGestureResult] = useState('');
+  const [gestureSource, setGestureSource] = useState(null); // 'demo' | 'model'
+  const frameSinkRef = useRef(null);
   const [guideId, setGuideId] = useState('halo');
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
   const guidePreset = GESTURE_PRESETS.find((g) => g.id === guideId) || GESTURE_PRESETS[0];
-  const tracking = useHandTracking(videoRef, canvasRef, !!cameraStream && activeTab === 'gerakan');
+  const tracking = useHandTracking(videoRef, canvasRef, !!cameraStream && activeTab === 'gerakan', {
+    onResult: (result) => frameSinkRef.current?.(result),
+  });
 
   const stopStream = () => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -143,7 +152,11 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
     if (navigator.mediaDevices?.getUserMedia) {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'user', width: { ideal: 960 }, height: { ideal: 600 } },
+          video: {
+            facingMode: 'user',
+            height: { ideal: Number(prefs.cameraQuality) || 720 },
+            width: { ideal: Math.round(((Number(prefs.cameraQuality) || 720) * 16) / 9) },
+          },
           audio: false,
         });
         streamRef.current = stream;
@@ -169,8 +182,26 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
 
   const handlePreset = (g) => {
     setGuideId(g.id);
+    setGestureSource('demo');
     setGestureResult(g.text);
     sendDeafMessage(g.text, 'Isyarat ➔ Teks (Mode Demo)');
+  };
+
+  // Hasil pengenal isyarat pribadi (model dari contoh rekaman pengguna)
+  const handleRecognized = (label) => {
+    setGestureSource('model');
+    setGestureResult(label);
+    sendDeafMessage(label, 'Isyarat ➔ Teks (model pribadi)');
+  };
+
+  const recognizerSuggestions = useMemo(
+    () => [...new Set([...GESTURE_PRESETS.map((g) => SIGNS[g.id]?.title), ...Object.values(SIGNS).map((x) => x.title)].filter(Boolean))],
+    [],
+  );
+
+  const pickGuideForLabel = (label) => {
+    const hit = Object.entries(SIGNS).find(([, v]) => v.title.toLowerCase() === label.trim().toLowerCase());
+    if (hit) setGuideId(hit[0]);
   };
 
   // ================================================================ TEKS
@@ -178,8 +209,12 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
   const [signText, setSignText] = useState('');
   const [signIndex, setSignIndex] = useState(0);
   const [playSequence, setPlaySequence] = useState(true);
-  const tokens = useMemo(() => textToSigns(signText), [signText]);
-  const matched = tokens.map((tk, i) => ({ ...tk, i })).filter((tk) => tk.signId);
+  const [spellUnknown, setSpellUnknown] = usePersistentState('spellUnknown', true);
+  const tokens = useMemo(() => textToSigns(signText, { spell: spellUnknown }), [signText, spellUnknown]);
+  const matched = useMemo(
+    () => tokens.map((tk, i) => ({ ...tk, i })).filter((tk) => tk.signId || tk.sign),
+    [tokens],
+  );
   const current = matched[Math.min(signIndex, Math.max(0, matched.length - 1))];
 
   const showInSigns = (text) => {
@@ -216,7 +251,7 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">Live Interpreter Multimodal</h2>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200/80">
+              <span className="px-2.5 py-0.5 rounded-full text-[0.6875rem] font-bold bg-amber-50 text-amber-700 border border-amber-200/80">
                 Prototype
               </span>
             </div>
@@ -274,7 +309,7 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
                 </div>
                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-primary-50 text-primary-700 border border-primary-100 flex items-center gap-1.5 shrink-0">
                   <Sparkles className="w-3.5 h-3.5 text-primary-600" />
-                  Bahasa Indonesia
+                  {prefs.speechLang === 'en-US' ? 'English (US)' : 'Bahasa Indonesia'}
                 </span>
               </div>
 
@@ -319,10 +354,10 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
                   </div>
                 )}
 
-                <div className="absolute bottom-4 left-6 right-6 flex items-center justify-between gap-2 text-[11px] font-bold text-slate-400">
+                <div className="absolute bottom-4 left-6 right-6 flex items-center justify-between gap-2 text-[0.6875rem] font-bold text-slate-400">
                   <span className="flex items-center gap-1.5">
                     <Activity className="w-3.5 h-3.5 text-primary-400" />
-                    id-ID
+                    {prefs.speechLang}
                   </span>
                   <span>Status: {voiceStatus}</span>
                 </div>
@@ -351,7 +386,7 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
                 </button>
               </div>
 
-              <p className="text-[11px] text-slate-400 leading-relaxed">
+              <p className="text-[0.6875rem] text-slate-400 leading-relaxed">
                 Tips akurasi: bicara jelas dan tidak terlalu cepat, dekatkan mikrofon, hindari tempat bising.
                 Istilah khusus atau bahasa daerah bisa salah dikenali.
               </p>
@@ -398,7 +433,7 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
                     )}
 
                     {/* HUD */}
-                    <div className="absolute top-4 left-4 flex items-center gap-2 bg-slate-950/70 px-3 py-1.5 rounded-full backdrop-blur-md text-[10px] text-white font-bold border border-slate-700/60">
+                    <div className="absolute top-4 left-4 flex items-center gap-2 bg-slate-950/70 px-3 py-1.5 rounded-full backdrop-blur-md text-[0.625rem] text-white font-bold border border-slate-700/60">
                       {tracking.status === 'loading' ? (
                         <Loader2 className="w-3 h-3 animate-spin text-sky-400" />
                       ) : (
@@ -407,7 +442,7 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
                       {cameraStream ? 'KAMERA PERANGKAT' : 'SIMULASI'}
                     </div>
                     {cameraStream && tracking.status === 'ready' && (
-                      <div className="absolute top-4 right-4 flex items-center gap-2 bg-slate-950/70 px-3 py-1.5 rounded-full backdrop-blur-md text-[10px] text-sky-400 font-bold border border-slate-700/60">
+                      <div className="absolute top-4 right-4 flex items-center gap-2 bg-slate-950/70 px-3 py-1.5 rounded-full backdrop-blur-md text-[0.625rem] text-sky-400 font-bold border border-slate-700/60">
                         <Layers className="w-3 h-3" />
                         {tracking.handCount} tangan • {tracking.fps} FPS
                       </div>
@@ -416,12 +451,12 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
                     {/* Panduan gerakan (picture-in-picture) */}
                     <div className="absolute top-14 right-4 w-24 sm:w-32 rounded-2xl bg-white/95 border border-white shadow-lg overflow-hidden z-10">
                       <SignAnimator key={guideId} signId={guideId} variant="card" active defaultMirror />
-                      <div className="px-2 pb-1.5 text-[10px] font-bold text-slate-700 text-center truncate">
+                      <div className="px-2 pb-1.5 text-[0.625rem] font-bold text-slate-700 text-center truncate">
                         Tirukan: {guidePreset.label}
                       </div>
                     </div>
 
-                    <div className="absolute bottom-4 left-4 right-4 text-[11px] text-slate-300 bg-slate-950/80 px-4 py-2 rounded-2xl backdrop-blur-md border border-slate-800">
+                    <div className="absolute bottom-4 left-4 right-4 text-[0.6875rem] text-slate-300 bg-slate-950/80 px-4 py-2 rounded-2xl backdrop-blur-md border border-slate-800">
                       Status: <strong className="text-white font-semibold">{gestureStatus}</strong>
                     </div>
                   </div>
@@ -439,13 +474,23 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
                 )}
               </div>
 
-              {/* Mode demo terjemahan */}
+              {/* Pengenal isyarat sungguhan (few-shot) */}
+              <RecognizerPanel
+                frameSinkRef={frameSinkRef}
+                cameraReady={!!cameraStream && tracking.status === 'ready'}
+                suggestions={recognizerSuggestions}
+                onRecognized={handleRecognized}
+                onLabelPick={pickGuideForLabel}
+                showToast={showToast}
+              />
+
+              {/* Mode demo untuk presentasi */}
               <div className="space-y-3">
-                <div className="flex items-start gap-2 p-3 rounded-2xl bg-amber-50 border border-amber-200/80 text-[11px] leading-relaxed text-amber-900">
+                <div className="flex items-start gap-2 p-3 rounded-2xl bg-amber-50 border border-amber-200/80 text-[0.6875rem] leading-relaxed text-amber-900">
                   <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                   <span>
-                    <strong>Mode Demo:</strong> tracking tangan di atas sudah nyata, tetapi pengenalan isyarat menjadi teks belum tersedia.
-                    Pilih isyarat di bawah untuk melihat panduannya dan mensimulasikan hasil terjemahan.
+                    <strong>Mode Demo:</strong> tombol di bawah menampilkan panduan gerakan dan mensimulasikan hasil terjemahan tanpa
+                    model (berguna untuk presentasi). Hasilnya ditandai "Mode Demo".
                   </span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -468,7 +513,7 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
               <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-4 space-y-2">
                 <div className="flex items-center justify-between gap-2">
                   <h4 className="text-sm font-bold text-slate-900">Panduan Gerakan: {SIGNS[guideId]?.title}</h4>
-                  <span className="text-[10px] font-semibold text-slate-400">Mode cermin aktif agar mudah ditirukan</span>
+                  <span className="text-[0.625rem] font-semibold text-slate-400">Mode cermin aktif agar mudah ditirukan</span>
                 </div>
                 <SignAnimator key={guideId} signId={guideId} variant="full" defaultMirror />
               </div>
@@ -506,7 +551,7 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
               {signText && (
                 <div className="flex flex-wrap gap-1.5">
                   {tokens.map((tk, i) =>
-                    tk.signId ? (
+                    tk.signId || tk.sign ? (
                       <button
                         key={i}
                         onClick={() => {
@@ -516,10 +561,13 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
                         className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-all ${
                           current?.i === i
                             ? 'bg-orange-500 text-white border-orange-500'
-                            : 'bg-primary-50 text-primary-700 border-primary-200 hover:bg-primary-100'
+                            : tk.signId
+                              ? 'bg-primary-50 text-primary-700 border-primary-200 hover:bg-primary-100'
+                              : 'bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-100'
                         }`}
+                        title={tk.signId ? 'Isyarat dari kamus' : 'Dieja dengan abjad jari'}
                       >
-                        {tk.text}
+                        {tk.signId ? tk.text : `${tk.text} (eja)`}
                       </button>
                     ) : (
                       <span
@@ -538,7 +586,7 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between gap-2">
                     <h4 className="text-sm font-bold text-slate-900">
-                      {SIGNS[current.signId].title}
+                      {current.signId ? SIGNS[current.signId].title : current.sign.title}
                       <span className="ml-2 text-xs font-semibold text-slate-400">
                         ({matched.indexOf(current) + 1}/{matched.length})
                       </span>
@@ -549,28 +597,39 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
                           setSignIndex(0);
                           setPlaySequence(true);
                         }}
-                        className="text-[11px] font-bold text-primary-600 hover:text-primary-700"
+                        className="text-[0.6875rem] font-bold text-primary-600 hover:text-primary-700"
                       >
                         Putar ulang dari awal
                       </button>
                     )}
                   </div>
                   <SignAnimator
-                    key={`${current.i}-${current.signId}`}
-                    signId={current.signId}
+                    key={`${current.i}-${current.signId || current.text}`}
+                    signId={current.signId || undefined}
+                    sign={current.sign || undefined}
                     variant="compact"
                     onLoopEnd={matched.length > 1 ? nextSign : undefined}
                   />
                 </div>
               ) : signText ? (
                 <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600">
-                  Belum ada kata yang cocok dengan kamus SIGNARY.
+                  Belum ada kata yang cocok dengan kamus SIGNARY. Aktifkan "Eja kata lain" untuk mengeja dengan abjad jari.
                 </div>
               ) : null}
 
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                <strong className="text-slate-500">Kata yang tersedia:</strong> {SUPPORTED_WORDS.join(', ')}. Kata bergaris putus-putus belum
-                tersedia di kamus.
+              <label className="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={spellUnknown}
+                  onChange={(e) => setSpellUnknown(e.target.checked)}
+                  className="w-4 h-4 accent-primary-600"
+                />
+                Eja kata lain dengan abjad jari SIBI (A–Z)
+              </label>
+
+              <p className="text-[0.6875rem] text-slate-400 leading-relaxed">
+                <strong className="text-slate-500">Kata di kamus:</strong> {SUPPORTED_WORDS.join(', ')}. Kata berwarna ungu dieja per huruf;
+                kata bergaris putus-putus tidak diperagakan.
               </p>
             </div>
           )}
@@ -582,8 +641,11 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <h4 className="text-base font-bold text-slate-900">Hasil Terjemahan</h4>
-                {activeTab === 'gerakan' && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">Mode Demo</span>
+                {activeTab === 'gerakan' && gestureSource === 'demo' && (
+                  <span className="text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">Mode Demo</span>
+                )}
+                {activeTab === 'gerakan' && gestureSource === 'model' && (
+                  <span className="text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Model Pribadi</span>
                 )}
               </div>
               <div className="flex items-center gap-1.5">
@@ -617,7 +679,7 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
                     {activeTab === 'suara'
                       ? 'Belum ada ucapan. Tekan "Mulai Mendengarkan" lalu bicara.'
                       : activeTab === 'gerakan'
-                        ? 'Pilih isyarat pada mode demo untuk melihat contoh hasil terjemahan.'
+                        ? 'Rekam contoh isyarat lalu tekan "Mulai Mengenali", atau pakai tombol demo.'
                         : 'Ketik kalimat untuk ditampilkan dalam bahasa isyarat.'}
                   </p>
                 )}
@@ -625,7 +687,7 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
                   <p className="mt-2 text-sm text-slate-400 italic">{speech.interim}…</p>
                 )}
               </div>
-              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider pt-4 border-t border-slate-200/50 mt-4">
+              <div className="text-[0.6875rem] font-bold text-slate-400 uppercase tracking-wider pt-4 border-t border-slate-200/50 mt-4">
                 Status: {outputStatus}
               </div>
             </div>
@@ -641,7 +703,8 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
                   penyedia browser.
                 </p>
                 <p>
-                  <span className="font-bold">Isyarat ➔ Teks:</span> masih mode demo (belum ada model pengenal isyarat).
+                  <span className="font-bold">Isyarat ➔ Teks:</span> mengenali kata yang Anda rekam sendiri (model pribadi, di perangkat).
+                  Tombol demo hanya simulasi.
                 </p>
               </div>
             </div>
@@ -658,14 +721,14 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
                 {canSpeak && (
                   <button
                     onClick={() => setAutoSpeak((v) => !v)}
-                    className={`flex items-center gap-1 text-[11px] font-semibold ${autoSpeak ? 'text-primary-600' : 'text-slate-400'}`}
+                    className={`flex items-center gap-1 text-[0.6875rem] font-semibold ${autoSpeak ? 'text-primary-600' : 'text-slate-400'}`}
                     title="Bacakan otomatis pesan dari Teman Tuli"
                   >
                     {autoSpeak ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
                     Bacakan otomatis
                   </button>
                 )}
-                <button onClick={() => setConversation([])} className="text-[11px] text-slate-400 hover:text-slate-600 font-semibold">
+                <button onClick={() => setConversation([])} className="text-[0.6875rem] text-slate-400 hover:text-slate-600 font-semibold">
                   Bersihkan
                 </button>
               </div>
@@ -686,7 +749,7 @@ export default function FeatureDetectionPage({ onNavigate, showToast }) {
                         : 'bg-white/80 border border-slate-200/80 text-slate-900 mr-4'
                     }`}
                   >
-                    <div className="flex items-center justify-between gap-2 text-[10px] text-slate-500 font-medium">
+                    <div className="flex items-center justify-between gap-2 text-[0.625rem] text-slate-500 font-medium">
                       <span className="font-bold">{msg.name}</span>
                       <span>
                         {msg.time} • {msg.mode}

@@ -3,6 +3,7 @@ import { Play, Pause, SkipBack, SkipForward, FlipHorizontal2, Gauge, Hand } from
 import SignScene from './SignScene';
 import { resolveHand, lerpHand } from './handModel';
 import { SIGNS } from '../../data/signLibrary';
+import { usePreferences } from '../../lib/preferences';
 
 // Posisi istirahat (tangan turun, di luar bingkai)
 const REST_R = { x: 48, y: 320, shape: 'open', yaw: 90 };
@@ -104,7 +105,10 @@ export default function SignAnimator({
 
   const isCard = variant === 'card';
   const [selfPlaying, setSelfPlaying] = useState(!isCard && autoPlay);
-  const [speed, setSpeed] = useState(1);
+  const { prefs } = usePreferences();
+  const baseSpeed = prefs.animSpeed || 1;
+  const [slow, setSlow] = useState(false);
+  const speed = slow ? 0.5 : baseSpeed;
   const [mirror, setMirror] = useState(defaultMirror);
   const [t, setT] = useState(() => (tl ? tl.steps[0].holdStart : 0));
   const speedRef = useRef(speed);
@@ -182,7 +186,7 @@ export default function SignAnimator({
         title={playing ? 'Klik untuk berhenti' : 'Arahkan kursor / ketuk untuk memutar animasi'}
       >
         <SignScene pose={pose} mirror={mirror} markerId={uid} className="w-full h-40" title={`Animasi isyarat ${sign.title}`} />
-        <div className="absolute top-1.5 left-1.5 flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/90 border border-slate-200 text-[10px] font-bold text-slate-600">
+        <div className="absolute top-1.5 left-1.5 flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/90 border border-slate-200 text-[0.625rem] font-bold text-slate-600">
           {playing ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
           {stepCount} tahap
         </div>
@@ -203,17 +207,17 @@ export default function SignAnimator({
     <div className={`space-y-3 ${className}`}>
       <div className="relative rounded-2xl bg-gradient-to-b from-sky-50 to-white border border-slate-200/70 overflow-hidden">
         <SignScene pose={pose} mirror={mirror} markerId={uid} className="w-full h-auto max-h-80 mx-auto block" title={`Animasi isyarat ${sign.title}`} />
-        <div className="absolute top-2 left-2 px-2.5 py-1 rounded-full bg-white/90 border border-slate-200 text-[11px] font-bold text-slate-700 shadow-xs">
+        <div className="absolute top-2 left-2 px-2.5 py-1 rounded-full bg-white/90 border border-slate-200 text-[0.6875rem] font-bold text-slate-700 shadow-xs">
           Tahap {index + 1}/{stepCount}
         </div>
-        <div className="absolute top-2 right-2 px-2.5 py-1 rounded-full bg-white/90 border border-slate-200 text-[10px] font-semibold text-slate-500 shadow-xs">
+        <div className="absolute top-2 right-2 px-2.5 py-1 rounded-full bg-white/90 border border-slate-200 text-[0.625rem] font-semibold text-slate-500 shadow-xs">
           {mirror ? 'Mode cermin' : 'Sudut pandang lawan bicara'}
         </div>
       </div>
 
       {/* Teks tahap aktif */}
       <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-orange-50/80 border border-orange-100 min-h-[3.5rem]">
-        <span className="shrink-0 w-6 h-6 rounded-full bg-orange-500 text-white text-[11px] font-black flex items-center justify-center">
+        <span className="shrink-0 w-6 h-6 rounded-full bg-orange-500 text-white text-[0.6875rem] font-black flex items-center justify-center">
           {index + 1}
         </span>
         <p className="text-xs sm:text-sm font-medium text-slate-700 leading-relaxed">{sign.steps[index].text}</p>
@@ -240,17 +244,17 @@ export default function SignAnimator({
         <div className="flex items-center gap-1.5">
           <button
             type="button"
-            onClick={() => setSpeed((s) => (s === 1 ? 0.5 : 1))}
-            className={`px-2.5 py-2 rounded-xl text-[11px] font-bold flex items-center gap-1 border ${speed !== 1 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-white text-slate-600 border-slate-200'}`}
+            onClick={() => setSlow((v) => !v)}
+            className={`px-2.5 py-2 rounded-xl text-[0.6875rem] font-bold flex items-center gap-1 border ${slow ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-white text-slate-600 border-slate-200'}`}
             title="Ubah kecepatan"
           >
             <Gauge className="w-3.5 h-3.5" />
-            {speed === 1 ? '1x' : '0.5x'}
+            {speed}x
           </button>
           <button
             type="button"
             onClick={() => setMirror((m) => !m)}
-            className={`px-2.5 py-2 rounded-xl text-[11px] font-bold flex items-center gap-1 border ${mirror ? 'bg-primary-50 text-primary-700 border-primary-200' : 'bg-white text-slate-600 border-slate-200'}`}
+            className={`px-2.5 py-2 rounded-xl text-[0.6875rem] font-bold flex items-center gap-1 border ${mirror ? 'bg-primary-50 text-primary-700 border-primary-200' : 'bg-white text-slate-600 border-slate-200'}`}
             title="Mode cermin: tangan kanan peraga tampil di kanan layar, seperti bercermin"
           >
             <FlipHorizontal2 className="w-3.5 h-3.5" />
@@ -262,7 +266,7 @@ export default function SignAnimator({
       {/* Gambar per tahap */}
       {variant === 'full' && (
         <div>
-          <span className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+          <span className="flex items-center gap-1.5 text-[0.6875rem] font-bold text-slate-500 uppercase tracking-wider mb-2">
             <Hand className="w-3.5 h-3.5" /> Gambar Gerakan per Tahap
           </span>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -277,15 +281,15 @@ export default function SignAnimator({
               >
                 <div className="relative rounded-xl bg-sky-50/70 overflow-hidden">
                   <SignScene pose={th.pose} ghost={th.ghost} mirror={mirror} markerId={`${uid}t${i}`} className="w-full h-auto block" title={`Tahap ${i + 1}`} />
-                  <span className="absolute top-1 left-1 w-5 h-5 rounded-full bg-orange-500 text-white text-[10px] font-black flex items-center justify-center">
+                  <span className="absolute top-1 left-1 w-5 h-5 rounded-full bg-orange-500 text-white text-[0.625rem] font-black flex items-center justify-center">
                     {i + 1}
                   </span>
                 </div>
-                <p className="mt-1.5 px-1 text-[11px] leading-snug font-medium text-slate-600 line-clamp-3">{sign.steps[i].text}</p>
+                <p className="mt-1.5 px-1 text-[0.6875rem] leading-snug font-medium text-slate-600 line-clamp-3">{sign.steps[i].text}</p>
               </button>
             ))}
           </div>
-          <p className="mt-2 text-[10px] text-slate-400 leading-relaxed">
+          <p className="mt-2 text-[0.625rem] text-slate-400 leading-relaxed">
             Bayangan samar = posisi tahap sebelumnya, panah oranye = arah gerakan.
           </p>
         </div>

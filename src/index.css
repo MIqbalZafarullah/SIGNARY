@@ -259,3 +259,241 @@ body {
   }
 }
 
+
+/* =========================================================
+   AKSESIBILITAS: MODE GELAP, KONTRAS TINGGI, FOKUS KEYBOARD
+   Diatur lewat atribut <html data-theme / data-contrast>
+   (lihat src/lib/preferences.jsx).
+   ========================================================= */
+
+/* Fokus keyboard selalu terlihat jelas */
+:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+/* ---------- MODE GELAP: palet warna dipetakan ulang ---------- */
+:root[data-theme='dark'] {
+  --color-primary-50: color-mix(in srgb, #3b82f6 13%, #0b1220);
+  --color-primary-100: color-mix(in srgb, #3b82f6 20%, #0b1220);
+  --color-primary-200: color-mix(in srgb, #3b82f6 34%, #0b1220);
+  --color-primary-700: #93c5fd;
+  --color-primary-800: color-mix(in srgb, #93c5fd 70%, white);
+  --color-primary-900: color-mix(in srgb, #93c5fd 45%, white);
+  --color-primary-950: color-mix(in srgb, #93c5fd 30%, white);
+  --color-blue-50: color-mix(in srgb, #3b82f6 13%, #0b1220);
+  --color-blue-100: color-mix(in srgb, #3b82f6 20%, #0b1220);
+  --color-blue-200: color-mix(in srgb, #3b82f6 34%, #0b1220);
+  --color-blue-700: #93c5fd;
+  --color-blue-800: color-mix(in srgb, #93c5fd 70%, white);
+  --color-blue-900: color-mix(in srgb, #93c5fd 45%, white);
+  --color-blue-950: color-mix(in srgb, #93c5fd 30%, white);
+  --color-sky-50: color-mix(in srgb, #0ea5e9 13%, #0b1220);
+  --color-sky-100: color-mix(in srgb, #0ea5e9 20%, #0b1220);
+  --color-sky-200: color-mix(in srgb, #0ea5e9 34%, #0b1220);
+  --color-sky-700: #7dd3fc;
+  --color-sky-800: color-mix(in srgb, #7dd3fc 70%, white);
+  --color-sky-900: color-mix(in srgb, #7dd3fc 45%, white);
+  --color-sky-950: color-mix(in srgb, #7dd3fc 30%, white);
+  --color-emerald-50: color-mix(in srgb, #10b981 13%, #0b1220);
+  --color-emerald-100: color-mix(in srgb, #10b981 20%, #0b1220);
+  --color-emerald-200: color-mix(in srgb, #10b981 34%, #0b1220);
+  --color-emerald-700: #6ee7b7;
+  --color-emerald-800: color-mix(in srgb, #6ee7b7 70%, white);
+  --color-emerald-900: color-mix(in srgb, #6ee7b7 45%, white);
+  --color-emerald-950: color-mix(in srgb, #6ee7b7 30%, white);
+  --color-red-50: color-mix(in srgb, #ef4444 13%, #0b1220);
+  --color-red-100: color-mix(in srgb, #ef4444 20%, #0b1220);
+  --color-red-200: color-mix(in srgb, #ef4444 34%, #0b1220);
+  --color-red-700: #fca5a5;
+  --color-red-800: color-mix(in srgb, #fca5a5 70%, white);
+  --color-red-900: color-mix(in srgb, #fca5a5 45%, white);
+  --color-red-950: color-mix(in srgb, #fca5a5 30%, white);
+  --color-amber-50: color-mix(in srgb, #f59e0b 13%, #0b1220);
+  --color-amber-100: color-mix(in srgb, #f59e0b 20%, #0b1220);
+  --color-amber-200: color-mix(in srgb, #f59e0b 34%, #0b1220);
+  --color-amber-700: #fcd34d;
+  --color-amber-800: color-mix(in srgb, #fcd34d 70%, white);
+  --color-amber-900: color-mix(in srgb, #fcd34d 45%, white);
+  --color-amber-950: color-mix(in srgb, #fcd34d 30%, white);
+  --color-indigo-50: color-mix(in srgb, #6366f1 13%, #0b1220);
+  --color-indigo-100: color-mix(in srgb, #6366f1 20%, #0b1220);
+  --color-indigo-200: color-mix(in srgb, #6366f1 34%, #0b1220);
+  --color-indigo-700: #a5b4fc;
+  --color-indigo-800: color-mix(in srgb, #a5b4fc 70%, white);
+  --color-indigo-900: color-mix(in srgb, #a5b4fc 45%, white);
+  --color-indigo-950: color-mix(in srgb, #a5b4fc 30%, white);
+  --color-orange-50: color-mix(in srgb, #f97316 13%, #0b1220);
+  --color-orange-100: color-mix(in srgb, #f97316 20%, #0b1220);
+  --color-orange-200: color-mix(in srgb, #f97316 34%, #0b1220);
+  --color-orange-700: #fdba74;
+  --color-orange-800: color-mix(in srgb, #fdba74 70%, white);
+  --color-orange-900: color-mix(in srgb, #fdba74 45%, white);
+  --color-orange-950: color-mix(in srgb, #fdba74 30%, white);
+  --color-purple-50: color-mix(in srgb, #a855f7 13%, #0b1220);
+  --color-purple-100: color-mix(in srgb, #a855f7 20%, #0b1220);
+  --color-purple-200: color-mix(in srgb, #a855f7 34%, #0b1220);
+  --color-purple-700: #d8b4fe;
+  --color-purple-800: color-mix(in srgb, #d8b4fe 70%, white);
+  --color-purple-900: color-mix(in srgb, #d8b4fe 45%, white);
+  --color-purple-950: color-mix(in srgb, #d8b4fe 30%, white);
+  --color-teal-50: color-mix(in srgb, #14b8a6 13%, #0b1220);
+  --color-teal-100: color-mix(in srgb, #14b8a6 20%, #0b1220);
+  --color-teal-200: color-mix(in srgb, #14b8a6 34%, #0b1220);
+  --color-teal-700: #5eead4;
+  --color-teal-800: color-mix(in srgb, #5eead4 70%, white);
+  --color-teal-900: color-mix(in srgb, #5eead4 45%, white);
+  --color-teal-950: color-mix(in srgb, #5eead4 30%, white);
+  --color-violet-50: color-mix(in srgb, #8b5cf6 13%, #0b1220);
+  --color-violet-100: color-mix(in srgb, #8b5cf6 20%, #0b1220);
+  --color-violet-200: color-mix(in srgb, #8b5cf6 34%, #0b1220);
+  --color-violet-700: #c4b5fd;
+  --color-slate-50: #0b1220;
+  --color-slate-100: #1a2436;
+  --color-slate-200: #2a3649;
+  --color-slate-500: #a0aec0;
+  --color-slate-600: #b8c4d4;
+  --color-slate-700: #cfd8e3;
+  --color-slate-800: #e2e8f0;
+  --color-slate-900: #f1f5f9;
+  --color-slate-950: #f8fafc;
+}
+
+:root[data-theme='dark'] body {
+  background-color: #0b1220;
+  color: #e2e8f0;
+}
+
+:root[data-theme='dark'] .liquid-glass,
+:root[data-theme='dark'] .liquid-glass-blue {
+  background: rgba(17, 25, 42, 0.78);
+  border-color: rgba(148, 163, 184, 0.16);
+  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+:root[data-theme='dark'] .glass-pill {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(148, 163, 184, 0.18);
+  box-shadow: none;
+}
+:root[data-theme='dark'] .liquid-glass-nav,
+:root[data-theme='dark'] .liquid-glass-nav.is-scrolled {
+  background: rgba(17, 25, 42, 0.8);
+  border-color: rgba(148, 163, 184, 0.18);
+}
+:root[data-theme='dark'] .liquid-glass-nav::before,
+:root[data-theme='dark'] .glass-border-specular::before {
+  opacity: 0.15;
+}
+:root[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.8);
+}
+
+@layer utilities {
+  /* Permukaan putih -> permukaan gelap. :where() menjaga spesifisitas rendah
+     sehingga varian hover:/focus: milik Tailwind tetap berlaku. */
+  :where([data-theme='dark']) .bg-white { background-color: #11192a; }
+  :where([data-theme='dark']) .bg-white\/10 { background-color: rgb(17 25 42 / 10%); }
+  :where([data-theme='dark']) .bg-white\/15 { background-color: rgb(17 25 42 / 15%); }
+  :where([data-theme='dark']) .bg-white\/20 { background-color: rgb(17 25 42 / 20%); }
+  :where([data-theme='dark']) .bg-white\/25 { background-color: rgb(17 25 42 / 25%); }
+  :where([data-theme='dark']) .bg-white\/40 { background-color: rgb(17 25 42 / 40%); }
+  :where([data-theme='dark']) .bg-white\/60 { background-color: rgb(17 25 42 / 60%); }
+  :where([data-theme='dark']) .bg-white\/70 { background-color: rgb(17 25 42 / 70%); }
+  :where([data-theme='dark']) .bg-white\/80 { background-color: rgb(17 25 42 / 80%); }
+  :where([data-theme='dark']) .bg-white\/90 { background-color: rgb(17 25 42 / 90%); }
+  :where([data-theme='dark']) .bg-white\/95 { background-color: rgb(17 25 42 / 95%); }
+  :where([data-theme='dark']) .hover\:bg-white:hover { background-color: #1c2840; }
+  :where([data-theme='dark']) .hover\:bg-white\/60:hover { background-color: rgb(28 40 64 / 60%); }
+  :where([data-theme='dark']) .border-white,
+  :where([data-theme='dark']) .border-white\/20,
+  :where([data-theme='dark']) .border-white\/25,
+  :where([data-theme='dark']) .border-white\/30,
+  :where([data-theme='dark']) .border-white\/70,
+  :where([data-theme='dark']) .border-white\/80,
+  :where([data-theme='dark']) .border-white\/90 {
+    border-color: rgb(148 163 184 / 16%);
+  }
+  :where([data-theme='dark']) .to-white { --tw-gradient-to: #11192a; }
+  :where([data-theme='dark']) .via-white { --tw-gradient-via: #11192a; }
+
+  /* Elemen yang memang gelap (panel kamera/mikrofon, latar modal) tetap gelap */
+  :where([data-theme='dark']) .bg-slate-900 { background-color: #0f172a; }
+  :where([data-theme='dark']) .bg-slate-900\/90 { background-color: rgb(15 23 42 / 90%); }
+  :where([data-theme='dark']) .bg-slate-800\/80 { background-color: rgb(30 41 59 / 80%); }
+  :where([data-theme='dark']) .bg-slate-950 { background-color: #020617; }
+  :where([data-theme='dark']) .bg-slate-950\/50 { background-color: rgb(2 6 23 / 50%); }
+  :where([data-theme='dark']) .bg-slate-950\/60 { background-color: rgb(2 6 23 / 60%); }
+  :where([data-theme='dark']) .bg-slate-950\/70 { background-color: rgb(2 6 23 / 70%); }
+  :where([data-theme='dark']) .bg-slate-950\/80 { background-color: rgb(2 6 23 / 80%); }
+  :where([data-theme='dark']) .border-slate-800 { border-color: #1e293b; }
+  :where([data-theme='dark']) .border-slate-700 { border-color: #334155; }
+  :where([data-theme='dark']) .border-slate-700\/60 { border-color: rgb(51 65 85 / 60%); }
+  :where([data-theme='dark']) .hover\:bg-slate-800:hover { background-color: #1e293b; }
+
+  /* Teks terang yang diletakkan di atas latar gelap/gradasi tetap terang */
+  :where([data-theme='dark'], [data-contrast='high']) .text-slate-200 { color: #e2e8f0; }
+  :where([data-theme='dark'], [data-contrast='high']) .text-slate-300 { color: #cbd5e1; }
+  :where([data-theme='dark']) .text-blue-100 { color: #dbeafe; }
+
+  /* Tombol & kartu gradasi berwarna pekat tetap pekat */
+  :where([data-theme='dark']) .hover\:bg-primary-700:hover { background-color: #1d4ed8; }
+  :where([data-theme='dark']) .hover\:bg-red-700:hover { background-color: #b91c1c; }
+  :where([data-theme='dark']) .hover\:bg-indigo-700:hover { background-color: #4338ca; }
+  :where([data-theme='dark']) .hover\:bg-emerald-700:hover { background-color: #047857; }
+  :where([data-theme='dark']) .from-primary-700 { --tw-gradient-from: #1d4ed8; }
+  :where([data-theme='dark']) .via-primary-800 { --tw-gradient-via: #1e40af; }
+  :where([data-theme='dark']) .to-slate-900 { --tw-gradient-to: #0f172a; }
+  :where([data-theme='dark']) .from-emerald-700 { --tw-gradient-from: #047857; }
+  :where([data-theme='dark']) .to-teal-700 { --tw-gradient-to: #0f766e; }
+}
+
+/* ---------- KONTRAS TINGGI ---------- */
+:root[data-contrast='high'] {
+  --color-slate-100: #e2e8f0;
+  --color-slate-200: #64748b;
+  --color-slate-300: #475569;
+  --color-slate-400: #334155;
+  --color-slate-500: #1e293b;
+  --color-slate-600: #0f172a;
+  --color-slate-700: #0f172a;
+}
+:root[data-contrast='high'][data-theme='dark'] {
+  --color-slate-100: #1e293b;
+  --color-slate-200: #94a3b8;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #e2e8f0;
+  --color-slate-500: #f1f5f9;
+  --color-slate-600: #f8fafc;
+  --color-slate-700: #ffffff;
+}
+:root[data-contrast='high'] .liquid-glass,
+:root[data-contrast='high'] .liquid-glass-blue,
+:root[data-contrast='high'] .glass-pill,
+:root[data-contrast='high'] .liquid-glass-nav {
+  background: #ffffff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 2px solid #0f172a;
+  box-shadow: none;
+}
+:root[data-contrast='high'][data-theme='dark'] .liquid-glass,
+:root[data-contrast='high'][data-theme='dark'] .liquid-glass-blue,
+:root[data-contrast='high'][data-theme='dark'] .glass-pill,
+:root[data-contrast='high'][data-theme='dark'] .liquid-glass-nav {
+  background: #000000;
+  border-color: #e2e8f0;
+}
+:root[data-contrast='high'] .liquid-glass-nav::before,
+:root[data-contrast='high'] .glass-border-specular::before {
+  display: none;
+}
+:root[data-contrast='high'] :focus-visible {
+  outline-width: 4px;
+}
+@layer utilities {
+  :where([data-contrast='high']) .border-white\/70,
+  :where([data-contrast='high']) .border-white\/80,
+  :where([data-contrast='high']) .border-white\/90 {
+    border-color: currentColor;
+  }
+}

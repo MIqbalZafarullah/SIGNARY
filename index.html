@@ -6,6 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="SIGNARY - Dashboard AI Multimodal untuk Ekosistem Komunikasi Inklusif Komunitas Tuli. Menggabungkan Smart Dictionary, Live Interpreter, Sign Academy, dan Inclusive Community." />
     <meta name="theme-color" content="#2563eb" />
+    <script>
+      // Terapkan preferensi tampilan sebelum halaman dirender (mencegah kedipan tema terang)
+      (function () {
+        try {
+          var p = JSON.parse(localStorage.getItem('signary:prefs') || '{}');
+          var r = document.documentElement;
+          r.dataset.theme = p.darkMode ? 'dark' : 'light';
+          r.dataset.contrast = p.highContrast ? 'high' : 'normal';
+          r.style.fontSize = { large: '18px', xlarge: '20px' }[p.fontSize] || '16px';
+          r.style.colorScheme = p.darkMode ? 'dark' : 'light';
+        } catch (e) {}
+      })();
+    </script>
     <title>SIGNARY - Dashboard AI Multimodal untuk Ekosistem Komunikasi Inklusif</title>
   </head>
   <body>

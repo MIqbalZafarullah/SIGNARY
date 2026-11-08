@@ -16,10 +16,13 @@ import {
   Check, 
   X, 
   Flame, 
-  Star 
+  Star,
+  Camera
 } from 'lucide-react';
+import { formatXp } from '../lib/progress';
+import HandPractice from '../components/practice/HandPractice';
 
-export default function SignAcademyPage({ onNavigate, showToast }) {
+export default function SignAcademyPage({ currentUser, addXp, onNavigate, showToast }) {
   const [activeTab, setActiveTab] = useState('modul'); // 'modul', 'quiz', 'game'
   const [selectedModule, setSelectedModule] = useState(null);
 
@@ -219,6 +222,7 @@ export default function SignAcademyPage({ onNavigate, showToast }) {
     const isCorrect = index === quizQuestions[currentQuestionIndex].correct;
     if (isCorrect) {
       setQuizScore(prev => prev + 1);
+      addXp?.(50);
       showToast('Jawaban Benar! +50 XP');
     } else {
       showToast('Kurang tepat, pelajari penjelasannya.');
@@ -293,6 +297,14 @@ export default function SignAcademyPage({ onNavigate, showToast }) {
     }
   };
 
+  // Bonus XP sekali saat semua pasangan berhasil dicocokkan
+  useEffect(() => {
+    if (matchCount > 0 && matchCount === initialCards.length / 2) {
+      addXp?.(100);
+      showToast('Semua pasangan cocok! +100 XP');
+    }
+  }, [matchCount]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleResetGame = () => {
     setCards([...initialCards].sort(() => Math.random() - 0.5));
     setSelectedCards([]);
@@ -315,7 +327,7 @@ export default function SignAcademyPage({ onNavigate, showToast }) {
               <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">
                 Sign Academy
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-primary-50 text-primary-700 border border-primary-100">
+              <span className="px-2.5 py-0.5 rounded-full text-[0.6875rem] font-bold bg-primary-50 text-primary-700 border border-primary-100">
                 Kurikulum 7 Modul + 1 Ujian
               </span>
             </div>
@@ -333,17 +345,17 @@ export default function SignAcademyPage({ onNavigate, showToast }) {
           </div>
           <div className="flex items-center gap-2 px-4 py-2 rounded-2xl liquid-glass border border-white/80 shadow-sm">
             <Trophy className="w-4 h-4 text-primary-600" />
-            <span className="text-xs font-bold text-slate-900">Level 4 • 1,450 XP</span>
+            <span className="text-xs font-bold text-slate-900">Level {currentUser?.level || 1} • {formatXp(currentUser?.xp)}</span>
           </div>
         </div>
       </div>
 
       {/* Tabs Switcher: Modul, Kuis, Game */}
       <div className="flex justify-center">
-        <div className="liquid-glass p-1.5 rounded-2xl flex max-w-2xl w-full shadow-lg border border-white/80">
+        <div className="liquid-glass p-1.5 rounded-2xl flex max-w-3xl w-full shadow-lg border border-white/80">
           <button
             onClick={() => setActiveTab('modul')}
-            className={`flex-1 py-3 px-3 sm:px-4 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 whitespace-nowrap ${
+            className={`flex-1 min-w-0 py-3 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 text-center leading-tight break-words ${
               activeTab === 'modul'
                 ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md'
                 : 'text-slate-600 hover:text-slate-900'
@@ -354,7 +366,7 @@ export default function SignAcademyPage({ onNavigate, showToast }) {
           </button>
           <button
             onClick={() => setActiveTab('quiz')}
-            className={`flex-1 py-3 px-3 sm:px-4 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 whitespace-nowrap ${
+            className={`flex-1 min-w-0 py-3 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 text-center leading-tight break-words ${
               activeTab === 'quiz'
                 ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md'
                 : 'text-slate-600 hover:text-slate-900'
@@ -365,7 +377,7 @@ export default function SignAcademyPage({ onNavigate, showToast }) {
           </button>
           <button
             onClick={() => setActiveTab('game')}
-            className={`flex-1 py-3 px-3 sm:px-4 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 whitespace-nowrap ${
+            className={`flex-1 min-w-0 py-3 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 text-center leading-tight break-words ${
               activeTab === 'game'
                 ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md'
                 : 'text-slate-600 hover:text-slate-900'
@@ -374,8 +386,22 @@ export default function SignAcademyPage({ onNavigate, showToast }) {
             <Gamepad2 className="w-4 h-4 shrink-0" />
             <span>Game: Sign Match</span>
           </button>
+          <button
+            onClick={() => setActiveTab('latihan')}
+            className={`flex-1 min-w-0 py-3 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 text-center leading-tight break-words ${
+              activeTab === 'latihan'
+                ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Camera className="w-4 h-4 shrink-0" />
+            <span>Latihan Kamera</span>
+          </button>
         </div>
       </div>
+
+      {/* TAB: LATIHAN KAMERA (umpan balik bentuk tangan) */}
+      {activeTab === 'latihan' && <HandPractice addXp={addXp} showToast={showToast} />}
 
       {/* TAB 1: MODUL KURIKULUM */}
       {activeTab === 'modul' && (
@@ -395,21 +421,21 @@ export default function SignAcademyPage({ onNavigate, showToast }) {
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
+                    <span className="text-[0.625rem] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
                       Modul {mod.id}
                     </span>
                     {mod.status === 'completed' && (
-                      <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-600">
+                      <span className="flex items-center gap-1 text-[0.6875rem] font-bold text-emerald-600">
                         <CheckCircle2 className="w-4 h-4" /> Selesai
                       </span>
                     )}
                     {mod.status === 'in-progress' && (
-                      <span className="flex items-center gap-1 text-[11px] font-bold text-primary-600">
+                      <span className="flex items-center gap-1 text-[0.6875rem] font-bold text-primary-600">
                         <Play className="w-3.5 h-3.5 fill-primary-600" /> Sedang Belajar
                       </span>
                     )}
                     {mod.status === 'locked' && (
-                      <span className="flex items-center gap-1 text-[11px] font-bold text-slate-400">
+                      <span className="flex items-center gap-1 text-[0.6875rem] font-bold text-slate-400">
                         <Lock className="w-3.5 h-3.5" /> Terkunci
                       </span>
                     )}
@@ -425,7 +451,7 @@ export default function SignAcademyPage({ onNavigate, showToast }) {
                 </div>
 
                 <div className="pt-4 mt-4 border-t border-slate-200/60 space-y-2">
-                  <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500">
+                  <div className="flex items-center justify-between text-[0.6875rem] font-semibold text-slate-500">
                     <span>{mod.lessonsCount} Sesi • {mod.duration}</span>
                     <span className="text-primary-600 font-bold">+{mod.xp} XP</span>
                   </div>
@@ -693,7 +719,7 @@ export default function SignAcademyPage({ onNavigate, showToast }) {
                 >
                   {isRevealed ? (
                     <div>
-                      <span className="text-[10px] text-slate-400 uppercase block mb-1">
+                      <span className="text-[0.625rem] text-slate-400 uppercase block mb-1">
                         {card.type === 'text' ? 'Kosakata' : 'Isyarat Gerak'}
                       </span>
                       <span>{card.content}</span>
@@ -701,7 +727,7 @@ export default function SignAcademyPage({ onNavigate, showToast }) {
                   ) : (
                     <div className="flex flex-col items-center gap-1 text-slate-300">
                       <GraduationCap className="w-6 h-6" />
-                      <span className="text-[10px] tracking-wider uppercase font-extrabold">SIGNARY</span>
+                      <span className="text-[0.625rem] tracking-wider uppercase font-extrabold">SIGNARY</span>
                     </div>
                   )}
                 </button>

@@ -16,11 +16,12 @@ import {
   User,
   Settings
 } from 'lucide-react';
+import { formatXp, levelProgress, XP_PER_LEVEL } from '../lib/progress';
 
 export default function DashboardPage({ currentUser, onNavigate, showToast }) {
   const studentStats = [
-    { label: 'Level Belajar', value: 'Level 4', desc: 'Isyarat Menengah', icon: Award, color: 'text-amber-600 bg-amber-50 border-amber-200/50' },
-    { label: 'Total Poin XP', value: '1,450 XP', desc: '+50 XP hari ini', icon: Flame, color: 'text-orange-600 bg-orange-50 border-orange-200/50' },
+    { label: 'Level Belajar', value: `Level ${currentUser?.level || 1}`, desc: `${levelProgress(currentUser?.xp)}% menuju level berikutnya`, icon: Award, color: 'text-amber-600 bg-amber-50 border-amber-200/50' },
+    { label: 'Total Poin XP', value: formatXp(currentUser?.xp), desc: `${XP_PER_LEVEL} XP per level`, icon: Flame, color: 'text-orange-600 bg-orange-50 border-orange-200/50' },
     { label: 'Jam Latihan', value: '28.5 Jam', desc: 'Konsisten 14 hari berturut', icon: Clock, color: 'text-blue-600 bg-blue-50 border-blue-200/50' },
     { label: 'Kosakata Dikuasai', value: '84 Kosakata', desc: 'BISINDO & SIBI', icon: BookOpen, color: 'text-emerald-600 bg-emerald-50 border-emerald-200/50' }
   ];
@@ -99,7 +100,7 @@ export default function DashboardPage({ currentUser, onNavigate, showToast }) {
               className="liquid-glass rounded-3xl p-5 border border-white/80 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
             >
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{stat.label}</span>
+                <span className="text-[0.6875rem] font-bold text-slate-500 uppercase tracking-wider">{stat.label}</span>
                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center border ${stat.color}`}>
                   <Icon className="w-4 h-4" />
                 </div>
@@ -120,7 +121,7 @@ export default function DashboardPage({ currentUser, onNavigate, showToast }) {
         <div className="lg:col-span-7 liquid-glass rounded-[32px] p-6 sm:p-8 border border-white/80 shadow-md space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-[11px] font-bold text-primary-600 uppercase tracking-wider">Silabus Kurikulum</span>
+              <span className="text-[0.6875rem] font-bold text-primary-600 uppercase tracking-wider">Silabus Kurikulum</span>
               <h2 className="text-xl font-bold text-slate-900 mt-0.5">Progress Pembelajaran Sign Academy</h2>
             </div>
             <span className="text-2xl font-black text-primary-600">65%</span>
@@ -143,7 +144,7 @@ export default function DashboardPage({ currentUser, onNavigate, showToast }) {
           {/* Current Recommended Lesson Card */}
           <div className="p-4 sm:p-5 rounded-2xl bg-blue-50/70 border border-blue-200/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
-              <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-blue-200/80 text-blue-800">
+              <span className="text-[0.625rem] font-extrabold uppercase px-2 py-0.5 rounded-full bg-blue-200/80 text-blue-800">
                 Rekomendasi Modul Berikutnya
               </span>
               <h4 className="text-sm sm:text-base font-bold text-slate-900">
@@ -181,8 +182,8 @@ export default function DashboardPage({ currentUser, onNavigate, showToast }) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h5 className="text-xs font-bold text-slate-900 leading-snug truncate">{act.title}</h5>
-                    <span className="block text-[11px] font-semibold text-emerald-600 mt-0.5">{act.score}</span>
-                    <span className="block text-[10px] text-slate-400 mt-0.5">{act.time}</span>
+                    <span className="block text-[0.6875rem] font-semibold text-emerald-600 mt-0.5">{act.score}</span>
+                    <span className="block text-[0.625rem] text-slate-400 mt-0.5">{act.time}</span>
                   </div>
                 </div>
               );
@@ -238,7 +239,7 @@ export default function DashboardPage({ currentUser, onNavigate, showToast }) {
       {/* 5. COMMUNITY UPDATE & FEED REKOMENDASI */}
       <section className="liquid-glass rounded-3xl p-6 sm:p-8 border border-white/80 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="space-y-1.5 text-center md:text-left">
-          <span className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider">Pemberitahuan Komunitas</span>
+          <span className="text-[0.6875rem] font-bold text-indigo-600 uppercase tracking-wider">Pemberitahuan Komunitas</span>
           <h3 className="text-lg font-bold text-slate-900">
             Ada 4 usulan kosakata baru membutuhkan validasi Anda!
           </h3>

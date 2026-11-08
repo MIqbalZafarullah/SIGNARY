@@ -122,7 +122,7 @@ export default function Navbar({ activePage, onNavigate, onLogoutClick, currentU
               }`}
               title="Profil Pengguna"
             >
-              <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-primary-600 to-blue-500 text-white text-[10px] font-extrabold flex items-center justify-center shrink-0 shadow-xs">
+              <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-primary-600 to-blue-500 text-white text-[0.625rem] font-extrabold flex items-center justify-center shrink-0 shadow-xs">
                 {currentUser?.name ? currentUser.name.charAt(0) : 'R'}
               </div>
               <span className="max-w-[80px] lg:max-w-[110px] truncate">
@@ -194,7 +194,7 @@ export default function Navbar({ activePage, onNavigate, onLogoutClick, currentU
                 }`}
               >
                 <Icon className="w-4 h-4 shrink-0" />
-                <span className="text-[8.5px] leading-none tracking-tighter text-center truncate max-w-full px-0.5">
+                <span className="text-[0.53rem] leading-none tracking-tighter text-center truncate max-w-full px-0.5">
                   {item.id === 'penerjemah' ? 'Live' : item.label}
                 </span>
                 {isActive && (

@@ -14,13 +14,14 @@ import {
   Eye
 } from 'lucide-react';
 import SignAnimator from '../components/sign/SignAnimator';
+import { usePersistentState } from '../lib/storage';
 
 export default function FeatureDictionaryPage({ onNavigate, showToast }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDialect, setSelectedDialect] = useState('Semua'); // 'Semua', 'BISINDO', 'SIBI'
   const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [selectedWordDetail, setSelectedWordDetail] = useState(null);
-  const [bookmarkedIds, setBookmarkedIds] = useState([1, 2, 8]);
+  const [bookmarkedIds, setBookmarkedIds] = usePersistentState('bookmarks', [1, 2, 8]);
   const [hoveredId, setHoveredId] = useState(null);
 
   // Lock background scroll when modal is open to prevent page scrolling behind it
@@ -220,7 +221,7 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[11px] font-bold uppercase tracking-wider mb-1">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[0.6875rem] font-bold uppercase tracking-wider mb-1">
               <Layers className="w-3 h-3" />
               <span>Smart Dictionary BISINDO & SIBI</span>
             </div>
@@ -260,7 +261,7 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
 
         {/* Dialect Selector: BISINDO / SIBI */}
         <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1">Standar:</span>
             {['Semua', 'BISINDO', 'SIBI'].map((dialect) => (
               <button
@@ -284,7 +285,7 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
 
         {/* 9 Categories Filter Pills */}
         <div className="pt-2 border-t border-slate-200/60">
-          <span className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+          <span className="block text-[0.6875rem] font-bold text-slate-400 uppercase tracking-wider mb-2">
             Kategori Kosakata (9 Bidang):
           </span>
           <div className="flex flex-wrap gap-2">
@@ -322,14 +323,14 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
                   {/* Card Header: Dialect tag & Bookmark button */}
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ${
+                      <span className={`px-2.5 py-0.5 rounded-md text-[0.625rem] font-black uppercase tracking-wider ${
                         item.dialect === 'BISINDO' 
                           ? 'bg-blue-100 text-blue-800 border border-blue-200' 
                           : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
                       }`}>
                         {item.dialect}
                       </span>
-                      <span className="text-[11px] font-semibold text-slate-400">
+                      <span className="text-[0.6875rem] font-semibold text-slate-400">
                         {item.category}
                       </span>
                     </div>
@@ -411,7 +412,7 @@ export default function FeatureDictionaryPage({ onNavigate, showToast }) {
             <div className="p-6 pb-4 border-b border-slate-100 flex items-start justify-between shrink-0 bg-white/95 backdrop-blur-md z-10">
               <div>
                 <div className="flex items-center gap-2 mb-1.5">
-                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                  <span className={`px-2.5 py-0.5 rounded-full text-[0.625rem] font-extrabold uppercase tracking-wider ${
                     selectedWordDetail.dialect === 'BISINDO' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                   }`}>
                     {selectedWordDetail.dialect}

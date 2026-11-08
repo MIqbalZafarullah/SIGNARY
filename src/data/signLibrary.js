@@ -162,3 +162,93 @@ const WORDS = {
 };
 
 export const SIGNS = WORDS;
+
+// ---------------------------------------------------------------- ABJAD ---
+// Ejaan jari SIBI (satu tangan, tangan kanan) untuk mengeja kata yang belum
+// ada di kamus. Pose standar: di depan bahu kanan.
+const LX = 86;
+const LY = 176;
+const LS = 1.5;
+const L = (shape, o = {}) => P(LX, LY, shape, { s: LS, ...o });
+
+const LETTERS = {
+  A: { pose: L('A'), how: 'kepalkan tangan, ibu jari menempel di sisi telunjuk' },
+  B: { pose: L('B'), how: 'empat jari tegak rapat, ibu jari terlipat di telapak' },
+  C: { pose: L('C', { yaw: 80 }), how: 'lengkungkan jari dan ibu jari membentuk huruf C' },
+  D: { pose: L('D'), how: 'telunjuk tegak, jari lain menyentuh ujung ibu jari' },
+  E: { pose: L('E'), how: 'tekuk ujung semua jari, ibu jari terlipat di bawahnya' },
+  F: { pose: L('F', { yaw: 35 }), how: 'ujung telunjuk bertemu ibu jari, tiga jari lain tegak' },
+  G: { pose: L('G', { roll: -90, yaw: -90, x: 70, y: 150, elbow: [52, 220] }), how: 'telunjuk dan ibu jari sejajar menunjuk ke samping' },
+  H: { pose: L('H', { roll: -90, yaw: -90, x: 70, y: 150, elbow: [52, 220] }), how: 'telunjuk dan jari tengah rapat menunjuk ke samping' },
+  I: { pose: L('I'), how: 'kelingking tegak, jari lain menggenggam' },
+  K: { pose: L('K'), how: 'telunjuk tegak, jari tengah condong, ibu jari di antaranya' },
+  L: { pose: L('L'), how: 'telunjuk tegak dan ibu jari ke samping membentuk L' },
+  M: { pose: L('M'), how: 'tiga jari menutupi ibu jari yang terselip' },
+  N: { pose: L('N'), how: 'dua jari menutupi ibu jari yang terselip' },
+  O: { pose: L('O', { yaw: 80 }), how: 'semua ujung jari bertemu ibu jari membentuk O' },
+  P: { pose: L('K', { roll: -160, yaw: -20, x: 92, y: 112, elbow: [46, 222] }), how: 'bentuk K lalu arahkan ke bawah' },
+  Q: { pose: L('G', { roll: 180, yaw: -90, x: 96, y: 112, elbow: [46, 222] }), how: 'bentuk G lalu arahkan ke bawah' },
+  R: { pose: L('R'), how: 'silangkan jari tengah di atas telunjuk' },
+  S: { pose: L('S'), how: 'kepalkan tangan, ibu jari melintang di depan jari' },
+  T: { pose: L('T'), how: 'ibu jari diselipkan di antara telunjuk dan jari tengah' },
+  U: { pose: L('U'), how: 'telunjuk dan jari tengah tegak rapat' },
+  V: { pose: L('V'), how: 'telunjuk dan jari tengah tegak merenggang' },
+  W: { pose: L('W'), how: 'tiga jari tegak merenggang, ibu jari menahan kelingking' },
+  X: { pose: L('X'), how: 'telunjuk ditekuk seperti kait' },
+  Y: { pose: L('Y'), how: 'ibu jari dan kelingking terbuka' },
+};
+
+// Huruf yang memerlukan gerakan
+const MOVING_LETTERS = {
+  J: [
+    { text: 'Huruf J: bentuk I (kelingking tegak)…', r: L('I') },
+    { text: '…gerakkan ke bawah sambil memutar pergelangan…', r: L('I', { y: 192, yaw: 70 }) },
+    { text: '…lalu lengkungkan seperti menggambar huruf J.', r: L('I', { x: 100, y: 198, yaw: 120, roll: 30 }) },
+  ],
+  Z: [
+    { text: 'Huruf Z: telunjuk lurus di kiri atas…', r: L('point', { x: 64, y: 160 }) },
+    { text: '…tarik garis mendatar ke kanan…', r: L('point', { x: 98, y: 160 }) },
+    { text: '…tarik garis miring ke kiri bawah…', r: L('point', { x: 64, y: 190 }) },
+    { text: '…lalu garis mendatar ke kanan.', r: L('point', { x: 98, y: 190 }) },
+  ],
+};
+
+export const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+/** Tahap-tahap untuk satu huruf. */
+export function letterSteps(ch, { dur = 380, hold = 650 } = {}) {
+  const c = ch.toUpperCase();
+  if (MOVING_LETTERS[c]) {
+    return MOVING_LETTERS[c].map((st, i, arr) => ({
+      ...st,
+      dur: i === 0 ? dur : 320,
+      hold: i === arr.length - 1 ? hold : 60,
+    }));
+  }
+  const def = LETTERS[c];
+  if (!def) return [];
+  return [{ text: `Huruf ${c}: ${def.how}.`, r: def.pose, dur, hold }];
+}
+
+/** Isyarat ejaan jari untuk satu kata (huruf di luar A-Z diabaikan). */
+export function spellWord(word) {
+  const letters = word.toUpperCase().replace(/[^A-Z]/g, '').split('');
+  if (!letters.length) return null;
+  return {
+    title: `Ejaan jari: ${letters.join('-')}`,
+    letters,
+    steps: letters.flatMap((ch) => letterSteps(ch)),
+  };
+}
+
+/** Isyarat satu huruf lengkap dengan tahap awal tangan terbuka (untuk latihan). */
+export function letterSign(ch) {
+  const c = ch.toUpperCase();
+  return {
+    title: `Huruf ${c}`,
+    steps: [
+      { text: 'Mulai dari tangan kanan terbuka di depan bahu, telapak menghadap ke depan.', r: L('open'), dur: 600, hold: 500 },
+      ...letterSteps(c, { dur: 550, hold: 1300 }),
+    ],
+  };
+}

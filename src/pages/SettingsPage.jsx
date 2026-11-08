@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   ArrowLeft, 
   Settings, 
@@ -13,25 +13,45 @@ import {
   Sliders,
   Sparkles,
   Lock,
-  Volume2
+  Volume2,
+  Trash2
 } from 'lucide-react';
+import { usePreferences } from '../lib/preferences';
+import { clearAllStore } from '../lib/storage';
+
+function Toggle({ on, onClick, label }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      aria-label={label}
+      onClick={onClick}
+      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
+        on ? 'bg-primary-600' : 'bg-slate-300'
+      }`}
+    >
+      <span
+        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+          on ? 'translate-x-5' : 'translate-x-0'
+        }`}
+      />
+    </button>
+  );
+}
 
 export default function SettingsPage({ onNavigate, onLogoutClick, showToast }) {
-  const [darkMode, setDarkMode] = useState(false);
-  const [highContrast, setHighContrast] = useState(false);
-  const [fontSize, setFontSize] = useState('normal'); // 'normal', 'large', 'xlarge'
-  const [gestureSpeed, setGestureSpeed] = useState('1.0x');
-  const [cameraQuality, setCameraQuality] = useState('HD (720p)');
-  const [speechLanguage, setSpeechLanguage] = useState('Bahasa Indonesia');
-  const [localEdgeProcessing, setLocalEdgeProcessing] = useState(true);
+  const { prefs, setPref, resetPrefs } = usePreferences();
 
-  const handleToggleTheme = () => {
-    setDarkMode(!darkMode);
-    showToast(`Mode tema: ${!darkMode ? 'Gelap' : 'Terang'}`);
+  const update = (key, value, message) => {
+    setPref(key, value);
+    if (message) showToast(message);
   };
 
-  const handleSaveSettings = () => {
-    showToast('Preferensi aksesibilitas SIGNARY berhasil disimpan!');
+  const handleClearData = () => {
+    if (!window.confirm('Hapus semua data SIGNARY di perangkat ini (sesi login, bookmark, XP, riwayat percakapan, data latihan, dan pengaturan)?')) return;
+    clearAllStore();
+    window.location.reload();
   };
 
   return (
@@ -49,7 +69,7 @@ export default function SettingsPage({ onNavigate, onLogoutClick, showToast }) {
             <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">
               Pengaturan & Aksesibilitas
             </h2>
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-primary-50 text-primary-700 border border-primary-100">
+            <span className="px-2.5 py-0.5 rounded-full text-[0.6875rem] font-bold bg-primary-50 text-primary-700 border border-primary-100">
               Preferensi Ekosistem
             </span>
           </div>
@@ -77,16 +97,13 @@ export default function SettingsPage({ onNavigate, onLogoutClick, showToast }) {
                   Ukuran Teks
                 </label>
                 <select
-                  value={fontSize}
-                  onChange={(e) => {
-                    setFontSize(e.target.value);
-                    showToast(`Ukuran font diatur ke: ${e.target.value}`);
-                  }}
+                  value={prefs.fontSize}
+                  onChange={(e) => update('fontSize', e.target.value, 'Ukuran teks diperbarui')}
                   className="w-full px-4 py-3 bg-white/80 backdrop-blur-md border border-slate-200/80 rounded-xl text-slate-900 text-xs font-medium focus:outline-none focus:border-primary-500"
                 >
-                  <option value="normal">Standar (Default 16px)</option>
-                  <option value="large">Besar (+20% Keterbacaan)</option>
-                  <option value="xlarge">Ekstra Besar (Kenyamanan Maksimal)</option>
+                  <option value="normal">Standar (100%)</option>
+                  <option value="large">Besar (112%)</option>
+                  <option value="xlarge">Ekstra Besar (125%)</option>
                 </select>
               </div>
 
@@ -95,41 +112,55 @@ export default function SettingsPage({ onNavigate, onLogoutClick, showToast }) {
                   Kecepatan Animasi Gestur Isyarat
                 </label>
                 <select
-                  value={gestureSpeed}
-                  onChange={(e) => {
-                    setGestureSpeed(e.target.value);
-                    showToast(`Kecepatan animasi diatur ke: ${e.target.value}`);
-                  }}
+                  value={prefs.animSpeed}
+                  onChange={(e) => update('animSpeed', Number(e.target.value), `Kecepatan animasi: ${e.target.value}x`)}
                   className="w-full px-4 py-3 bg-white/80 backdrop-blur-md border border-slate-200/80 rounded-xl text-slate-900 text-xs font-medium focus:outline-none focus:border-primary-500"
                 >
-                  <option value="0.75x">0.75x - Lambat (Mudah Diikuti Pemula)</option>
-                  <option value="1.0x">1.0x - Kecepatan Normal Alami</option>
-                  <option value="1.25x">1.25x - Dinamis Cepat</option>
+                  <option value={0.75}>0.75x - Lambat (mudah diikuti pemula)</option>
+                  <option value={1}>1x - Normal</option>
+                  <option value={1.25}>1.25x - Cepat</option>
                 </select>
               </div>
             </div>
 
-            {/* High Contrast Toggle */}
-            <div className="flex items-center justify-between p-4 bg-white/60 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-sm">
-              <div>
-                <span className="block text-sm font-bold text-slate-800">Mode Kontras Tinggi (High Contrast)</span>
-                <span className="block text-xs text-slate-400 font-medium">Mempertegas garis kontur antarmuka untuk kenyamanan penglihatan</span>
+            {/* Mode gelap */}
+            <div className="flex items-center justify-between gap-4 p-4 bg-white/60 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-sm">
+              <div className="flex items-start gap-3">
+                {prefs.darkMode ? <Moon className="w-5 h-5 text-primary-600 shrink-0" /> : <Sun className="w-5 h-5 text-amber-500 shrink-0" />}
+                <div>
+                  <span className="block text-sm font-bold text-slate-800">Mode Gelap</span>
+                  <span className="block text-xs text-slate-500 font-medium">Latar gelap yang lebih nyaman di ruangan redup</span>
+                </div>
               </div>
+              <Toggle
+                on={prefs.darkMode}
+                label="Mode gelap"
+                onClick={() => update('darkMode', !prefs.darkMode, `Mode ${!prefs.darkMode ? 'gelap' : 'terang'} aktif`)}
+              />
+            </div>
+
+            {/* Kontras tinggi */}
+            <div className="flex items-center justify-between gap-4 p-4 bg-white/60 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-sm">
+              <div>
+                <span className="block text-sm font-bold text-slate-800">Mode Kontras Tinggi</span>
+                <span className="block text-xs text-slate-500 font-medium">Teks lebih pekat, garis tepi tegas, dan latar tanpa efek transparan</span>
+              </div>
+              <Toggle
+                on={prefs.highContrast}
+                label="Mode kontras tinggi"
+                onClick={() => update('highContrast', !prefs.highContrast, `Kontras tinggi ${!prefs.highContrast ? 'diaktifkan' : 'dinonaktifkan'}`)}
+              />
+            </div>
+
+            <div className="flex justify-end">
               <button
-                type="button"
                 onClick={() => {
-                  setHighContrast(!highContrast);
-                  showToast(`Kontras tinggi ${!highContrast ? 'diaktifkan' : 'dinonaktifkan'}`);
+                  resetPrefs();
+                  showToast('Pengaturan tampilan dikembalikan ke bawaan');
                 }}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  highContrast ? 'bg-primary-600' : 'bg-slate-300'
-                }`}
+                className="text-xs font-bold text-slate-500 hover:text-primary-600"
               >
-                <span
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                    highContrast ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-                />
+                Kembalikan ke bawaan
               </button>
             </div>
           </div>
@@ -144,70 +175,54 @@ export default function SettingsPage({ onNavigate, onLogoutClick, showToast }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                  Kualitas Frame Kamera Vision
+                  Kualitas Kamera
                 </label>
                 <select
-                  value={cameraQuality}
-                  onChange={(e) => {
-                    setCameraQuality(e.target.value);
-                    showToast(`Kualitas kamera diset: ${e.target.value}`);
-                  }}
+                  value={prefs.cameraQuality}
+                  onChange={(e) => update('cameraQuality', e.target.value, 'Kualitas kamera diperbarui (berlaku saat kamera dinyalakan ulang)')}
                   className="w-full px-4 py-3 bg-white/80 backdrop-blur-md border border-slate-200/80 rounded-xl text-slate-900 text-xs font-medium focus:outline-none focus:border-primary-500"
                 >
-                  <option value="SD (480p)">SD (480p) - Hemat Bandwidth</option>
-                  <option value="HD (720p)">HD (720p) - Rekomendasi Akurasi 98%</option>
-                  <option value="FHD (1080p)">Full HD (1080p) - Presisi Tertinggi</option>
+                  <option value="480">SD (480p) - ringan untuk perangkat lama</option>
+                  <option value="720">HD (720p) - disarankan</option>
+                  <option value="1080">Full HD (1080p) - lebih tajam, lebih berat</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                  Bahasa Masukan Verbal (STT)
+                  Bahasa Pengenalan Suara
                 </label>
                 <select
-                  value={speechLanguage}
-                  onChange={(e) => {
-                    setSpeechLanguage(e.target.value);
-                    showToast(`Bahasa ucapan diset: ${e.target.value}`);
-                  }}
+                  value={prefs.speechLang}
+                  onChange={(e) => update('speechLang', e.target.value, 'Bahasa pengenalan suara diperbarui')}
                   className="w-full px-4 py-3 bg-white/80 backdrop-blur-md border border-slate-200/80 rounded-xl text-slate-900 text-xs font-medium focus:outline-none focus:border-primary-500"
                 >
-                  <option value="Bahasa Indonesia">Bahasa Indonesia (Utama)</option>
-                  <option value="English (US)">English (US)</option>
+                  <option value="id-ID">Bahasa Indonesia (utama)</option>
+                  <option value="en-US">English (US)</option>
                 </select>
               </div>
             </div>
 
-            {/* Edge AI toggle */}
-            <div className="flex items-center justify-between p-4 bg-white/60 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-sm">
-              <div className="pr-4">
-                <span className="block text-sm font-bold text-slate-800">Privasi Edge AI (Pemrosesan di Perangkat)</span>
-                <span className="block text-xs text-slate-400 font-medium">Video kamera dan audio tidak disimpan ke server luar demi perlindungan privasi pengguna</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setLocalEdgeProcessing(!localEdgeProcessing);
-                  showToast(`Edge AI ${!localEdgeProcessing ? 'diaktifkan' : 'dinonaktifkan'}`);
-                }}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  localEdgeProcessing ? 'bg-primary-600' : 'bg-slate-300'
-                }`}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                    localEdgeProcessing ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-                />
-              </button>
+            {/* Info privasi (jujur sesuai cara kerja) */}
+            <div className="p-4 bg-white/60 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-sm space-y-1.5 text-xs text-slate-600 font-medium leading-relaxed">
+              <span className="flex items-center gap-1.5 text-sm font-bold text-slate-800">
+                <Lock className="w-4 h-4 text-primary-600" /> Privasi Data
+              </span>
+              <p>Kamera: tracking tangan diproses di perangkat Anda, gambar kamera tidak dikirim ke server.</p>
+              <p>Suara: memakai pengenalan suara bawaan browser. Di Chrome/Edge, audio diproses oleh server penyedia browser.</p>
+              <p>Data akun, XP, bookmark, riwayat percakapan, dan data latihan disimpan di browser perangkat ini saja.</p>
             </div>
 
-            <div className="flex justify-end pt-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl border border-red-200/70 bg-red-50/60">
+              <div>
+                <span className="block text-sm font-bold text-red-900">Hapus Data di Perangkat Ini</span>
+                <span className="block text-xs text-red-700 font-medium">Disarankan saat memakai komputer umum.</span>
+              </div>
               <button
-                onClick={handleSaveSettings}
-                className="px-6 py-2.5 rounded-xl liquid-btn-primary text-white font-bold text-xs shadow-md active:scale-95 transition-all"
+                onClick={handleClearData}
+                className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shrink-0"
               >
-                Simpan Semua Preferensi
+                <Trash2 className="w-4 h-4" /> Hapus Semua Data
               </button>
             </div>
           </div>
@@ -227,7 +242,7 @@ export default function SettingsPage({ onNavigate, onLogoutClick, showToast }) {
                 },
                 { 
                   q: 'Bagaimana cara menggunakan Live Interpreter dua arah?', 
-                  a: 'Gunakan Mode A (Suara ke Teks) saat penutur verbal berbicara di dekat mikrofon, dan gunakan Mode B (Isyarat ke Teks) saat rekan Tuli berisyarat di depan kamera dengan tracking kerangka tangan 21 titik.' 
+                  a: 'Pendengar memakai tab Suara ➔ Teks (bicara di dekat mikrofon, sebaiknya di Chrome/Edge). Teman Tuli dapat mengetik pesan yang otomatis dibacakan, atau memakai tab Isyarat ➔ Teks untuk kata yang sudah dilatih. Tab Teks ➔ Isyarat menampilkan peraga untuk kata di kamus.' 
                 },
                 { 
                   q: 'Bagaimana cara mengusulkan kosakata isyarat baru?', 
@@ -235,7 +250,7 @@ export default function SettingsPage({ onNavigate, onLogoutClick, showToast }) {
                 },
                 { 
                   q: 'Apakah data kamera atau audio saya dikirimkan ke server luar?', 
-                  a: 'Tidak. SIGNARY dirancang dengan arsitektur privasi Edge AI di mana kalkulasi sensor berlangsung aman secara lokal di peramban Anda.' 
+                  a: 'Gambar kamera tidak dikirim: tracking tangan berjalan di perangkat Anda. Untuk suara, SIGNARY memakai pengenalan suara bawaan browser; di Chrome/Edge audio diproses oleh server penyedia browser tersebut.' 
                 }
               ].map((faq, idx) => (
                 <div key={idx} className="py-4 first:pt-0 last:pb-0 space-y-1.5">
@@ -263,7 +278,7 @@ export default function SettingsPage({ onNavigate, onLogoutClick, showToast }) {
 
             <div className="space-y-3 text-xs text-slate-600 leading-relaxed font-medium">
               <div className="p-3 rounded-2xl bg-primary-50/60 border border-primary-100">
-                <span className="block text-[10px] font-extrabold uppercase tracking-wider text-primary-700">Versi Prototipe</span>
+                <span className="block text-[0.625rem] font-extrabold uppercase tracking-wider text-primary-700">Versi Prototipe</span>
                 <strong className="text-slate-900 text-sm">SIGNARY v2.4.0 Multimodal</strong>
               </div>
               <p>

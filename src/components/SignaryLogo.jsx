@@ -7,7 +7,7 @@ export default function SignaryLogo({
   showTagline = false,
   className = "", 
   textClassName = "text-2xl font-black tracking-tight text-slate-900",
-  taglineClassName = "text-[10px] font-bold tracking-wider uppercase text-primary-600"
+  taglineClassName = "text-[0.625rem] font-bold tracking-wider uppercase text-primary-600"
 }) {
   return (
     <div className={`inline-flex items-center gap-3.5 ${className}`}>

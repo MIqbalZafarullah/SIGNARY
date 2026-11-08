@@ -1,4 +1,4 @@
-import { SIGNS } from '../data/signLibrary';
+import { SIGNS, spellWord } from '../data/signLibrary';
 
 // Kata/frasa yang dipetakan ke animasi isyarat yang tersedia.
 const KEYWORDS = {
@@ -29,10 +29,10 @@ export const SUPPORTED_WORDS = Object.keys(KEYWORDS)
   .map((id) => SIGNS[id].title);
 
 /**
- * Memecah teks menjadi token. Token yang cocok dengan kamus diberi signId,
- * yang belum tersedia tetap ditampilkan agar pengguna tahu.
+ * Memecah teks menjadi token. Token yang cocok dengan kamus diberi signId.
+ * Bila `spell` aktif, kata lain dieja dengan abjad jari (properti `sign`).
  */
-export function textToSigns(text) {
+export function textToSigns(text, { spell = true } = {}) {
   const tokens = text
     .toLowerCase()
     .replace(/[^\p{L}\p{N}\s]/gu, ' ')
@@ -46,7 +46,8 @@ export function textToSigns(text) {
       out.push({ text: match.words.join(' '), signId: match.id });
       i += match.words.length;
     } else {
-      out.push({ text: tokens[i], signId: null });
+      const spelled = spell ? spellWord(tokens[i]) : null;
+      out.push({ text: tokens[i], signId: null, sign: spelled });
       i += 1;
     }
   }
